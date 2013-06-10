@@ -7,16 +7,7 @@ public class Word {
 	private long id;
 	private String source;
 	private int rating;
-	private boolean firstCase;
-	private List<String> values = new ArrayList<String>();
-	
-	/*public Word(String source, String transcription, String translation){
-		this.source = source;
-		this.transcription = transcription;
-		this.translation = translation;
-		this.firstCase = false;
-		this.rating = 0;
-	}*/
+	private int searchCount;
 	
 	public long getId() {
 		return id;
@@ -34,12 +25,12 @@ public class Word {
 		this.source = source;
 	}
 	
-	public void setFirst(){
-		this.firstCase = true;
+	public void setSearchCount(int searchCount){
+		this.searchCount = searchCount;
 	}
 	
-	public boolean isFirst(){
-		return this.firstCase;
+	public int getSearchCount(){
+		return this.searchCount;
 	}
 	
 	public int getRating(){
@@ -48,15 +39,6 @@ public class Word {
 	
 	public void setRating(int rating){
 		this.rating = rating;
-	}
-	
-	public List<String> getValues(){
-		return values;
-	}
-	
-	public void setValues(List <String> values){
-		this.values.clear();
-		this.values.addAll(values);
 	}
 	
 	@Override
