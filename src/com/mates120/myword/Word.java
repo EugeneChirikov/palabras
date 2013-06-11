@@ -1,8 +1,5 @@
 package com.mates120.myword;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Word {
 	private long id;
 	private String source;

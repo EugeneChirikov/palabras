@@ -17,9 +17,6 @@ public class WordsDataSource {
 			DatabaseHelper.COL_WORDS_SEARCH_COUNTER, 
 			DatabaseHelper.COL_WORDS_RATING};
 	
-	private String[] allLinksColumns = {DatabaseHelper.COL_LINKS_WORD,
-			DatabaseHelper.COL_LINKS_VALUE};
-	
 	public WordsDataSource(Context context){
 		dbHelper = new DatabaseHelper(context);
 	}
