@@ -6,35 +6,23 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
-public class ValuesDataSource {
-	private SQLiteDatabase database;
-	private DatabaseHelper dbHelper;
+public class ValuesDataSource extends DataSource{
 	
 	private String[] allValuesColumns = {DatabaseHelper.COL_VALUES_ID, 
 			DatabaseHelper.COL_VALUES_VALUE,
 			DatabaseHelper.COL_VALUES_TAG};
 	
 	public ValuesDataSource(Context context){
-		dbHelper = new DatabaseHelper(context);
-	}
-	
-	public void open() throws SQLException{
-		database = dbHelper.getWritableDatabase();
-	}
-	
-	public void close(){
-		dbHelper.close();
+		super(context);
 	}
 	
 	public Value createValue(String value, String tag){
 		ContentValues values = new ContentValues();
 		values.put(DatabaseHelper.COL_VALUES_VALUE, value);
 		values.put(DatabaseHelper.COL_VALUES_TAG, tag);
-		long insertId = database.insert(DatabaseHelper.TABLE_VALUES, null, values);
-		Cursor cursor = database.query(DatabaseHelper.TABLE_VALUES,
+		long insertId = getDatabase().insert(DatabaseHelper.TABLE_VALUES, null, values);
+		Cursor cursor = getDatabase().query(DatabaseHelper.TABLE_VALUES,
 				allValuesColumns, DatabaseHelper.COL_VALUES_ID + " = " + insertId,
 				null, null, null, null);
 		cursor.moveToFirst();
@@ -46,13 +34,13 @@ public class ValuesDataSource {
 	public void deleteValue(Value value){
 		long id = value.getId();
 		System.out.println("Value deleted with id: " + id);
-		database.delete(DatabaseHelper.TABLE_VALUES, 
+		getDatabase().delete(DatabaseHelper.TABLE_VALUES, 
 				DatabaseHelper.COL_VALUES_ID + " = " + id, null);
 	}
 	
 	public List<Value> getAllLinks(){
 		List<Value> values = new ArrayList<Value>();
-		Cursor cursor = database.query(DatabaseHelper.TABLE_VALUES, allValuesColumns, 
+		Cursor cursor = getDatabase().query(DatabaseHelper.TABLE_VALUES, allValuesColumns, 
 				null, null, null, null, null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()){

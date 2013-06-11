@@ -6,27 +6,16 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
-public class WordsDataSource {
-	private SQLiteDatabase database;
-	private DatabaseHelper dbHelper;
+public class WordsDataSource extends DataSource{
+
 	private String[] allWordsColumns = {DatabaseHelper.COL_WORDS_ID, 
 			DatabaseHelper.COL_WORDS_SOURCE, 
 			DatabaseHelper.COL_WORDS_SEARCH_COUNTER, 
 			DatabaseHelper.COL_WORDS_RATING};
 	
 	public WordsDataSource(Context context){
-		dbHelper = new DatabaseHelper(context);
-	}
-	
-	public void open() throws SQLException{
-		database = dbHelper.getWritableDatabase();
-	}
-	
-	public void close(){
-		dbHelper.close();
+		super(context);
 	}
 	
 	public Word createWord(String word){
@@ -34,8 +23,8 @@ public class WordsDataSource {
 		values.put(DatabaseHelper.COL_WORDS_SOURCE, word);
 		values.put(DatabaseHelper.COL_WORDS_SEARCH_COUNTER, 0);
 		values.put(DatabaseHelper.COL_WORDS_RATING, 0);
-		long insertId = database.insert(DatabaseHelper.TABLE_WORDS, null, values);
-		Cursor cursor = database.query(DatabaseHelper.TABLE_WORDS,
+		long insertId = getDatabase().insert(DatabaseHelper.TABLE_WORDS, null, values);
+		Cursor cursor = getDatabase().query(DatabaseHelper.TABLE_WORDS,
 				allWordsColumns, DatabaseHelper.COL_WORDS_ID + " = " + insertId,
 				null, null, null, null);
 		cursor.moveToFirst();
@@ -47,13 +36,13 @@ public class WordsDataSource {
 	public void deleteWord(Word word){
 		long id = word.getId();
 		System.out.println("Word deleted with id: " + id);
-		database.delete(DatabaseHelper.TABLE_WORDS, 
+		getDatabase().delete(DatabaseHelper.TABLE_WORDS, 
 				DatabaseHelper.COL_WORDS_ID + " = " + id, null);
 	}
 	
 	public List<Word> getAllWords(){
 		List<Word> words = new ArrayList<Word>();
-		Cursor cursor = database.query(DatabaseHelper.TABLE_WORDS, allWordsColumns, 
+		Cursor cursor = getDatabase().query(DatabaseHelper.TABLE_WORDS, allWordsColumns, 
 				null, null, null, null, null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()){
