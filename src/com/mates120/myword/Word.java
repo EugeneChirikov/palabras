@@ -7,16 +7,26 @@ public class Word {
 	private long id;
 	private String source;
 	private int rating;
-	private boolean firstCase;
-	private List<String> values = new ArrayList<String>();
+	private int searchCount;
+	private List<Value> values;
 	
-	/*public Word(String source, String transcription, String translation){
+	public Word(){
+		
+	}
+	
+	public Word(String source, List<String> values, String dict_name){
 		this.source = source;
-		this.transcription = transcription;
-		this.translation = translation;
-		this.firstCase = false;
+		this.values = new ArrayList<Value>();
+		this.setValues(values, dict_name);
+	}
+	
+	public Word(String source){
+		this.id = 0;
+		this.source = source;
 		this.rating = 0;
-	}*/
+		this.searchCount = 0;
+		this.values = new ArrayList<Value>();
+	}
 	
 	public long getId() {
 		return id;
@@ -34,12 +44,12 @@ public class Word {
 		this.source = source;
 	}
 	
-	public void setFirst(){
-		this.firstCase = true;
+	public void setSearchCount(int searchCount){
+		this.searchCount = searchCount;
 	}
 	
-	public boolean isFirst(){
-		return this.firstCase;
+	public int getSearchCount(){
+		return this.searchCount;
 	}
 	
 	public int getRating(){
@@ -50,13 +60,18 @@ public class Word {
 		this.rating = rating;
 	}
 	
-	public List<String> getValues(){
-		return values;
+	public void setValues(List<Value> values){
+		this.values = values;
 	}
 	
-	public void setValues(List <String> values){
-		this.values.clear();
-		this.values.addAll(values);
+	public void setValues(List<String> values, String dict_name){
+		for(int i = 0; i < values.size(); i ++){
+			this.values.add(new Value(values.get(i), dict_name));
+		}
+	}
+	
+	public List<Value> getValues(){
+		return this.values;
 	}
 	
 	@Override
