@@ -3,7 +3,16 @@ package com.mates120.myword;
 public class Value {
 	private long id;
 	private String value;
-	private String tag;
+	private String dictionary;
+	
+	public Value(){
+		
+	}
+	
+	public Value(String value, String dictionary){
+		this.value = value;
+		this.dictionary = dictionary;
+	}
 	
 	public void setId(long id){
 		this.id = id;
@@ -21,12 +30,12 @@ public class Value {
 		return this.value;
 	}
 	
-	public void setTag(String tag){
-		this.tag = tag;
+	public void setDictionary(String dictionary){
+		this.dictionary = dictionary;
 	}
 	
-	public String getTag(){
-		return this.tag;
+	public String getDictionary(){
+		return this.dictionary;
 	}
 	
 	@Override

@@ -16,11 +16,15 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	public static final String TABLE_VALUES = "values";
 	public static final String COL_VALUES_ID = "_id";
 	public static final String COL_VALUES_VALUE = "value";
-	public static final String COL_VALUES_TAG = "tag";
+	public static final String COL_VALUES_DICT_ID = "tag";
 	
 	public static final String TABLE_LINKS = "links";
 	public static final String COL_LINKS_WORD = "word_id";
 	public static final String COL_LINKS_VALUE = "value_id";
+	
+	public static final String TABLE_DICTIONARIES = "dictionaries";
+	public static final String COL_DICTIONARIES_ID = "_id";
+	public static final String COL_DICTIONARIES_NAME = "dictionary";
 	
 	private static final String DATABASE_NAME = "myword.db";
 	private static final int DATABASE_VERSION = 1;
@@ -35,14 +39,28 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	private static final String DATABASE_CREATE_VALUES = "create table"
 			+ TABLE_VALUES + " (" + COL_VALUES_ID
 			+ " integer primary key autoincrement, "
-			+ COL_VALUES_VALUE + " text not null, " + COL_VALUES_TAG
-			+ " text not null);";
+			+ COL_VALUES_VALUE + " text not null, " + COL_VALUES_DICT_ID
+			+ " integer not null,"
+			+ " foreign key (" + COL_VALUES_DICT_ID + ") references " 
+			+ TABLE_DICTIONARIES + "(" + COL_DICTIONARIES_ID + ") on delete cascade "
+			+ ");";
 	
 	private static final String DATABASE_CREATE_LINKS = "create table"
 			+ TABLE_LINKS + " (" + COL_LINKS_WORD 
-			+ " integer not null, " + COL_LINKS_VALUE
-			+ " integer not null, primary key (" + COL_LINKS_WORD
-			+ ", " + COL_LINKS_VALUE + "));";
+			+ " integer not null, " 
+			+ COL_LINKS_VALUE + " integer not null,"
+			+ " primary key (" + COL_LINKS_WORD + ", " + COL_LINKS_VALUE + "), " 
+			+ "foreign key (" + COL_LINKS_WORD + ") references "+ TABLE_WORDS +"(" 
+			+ COL_WORDS_ID + ") on delete cascade," 
+			+ " foreign key (" + COL_LINKS_VALUE + ") references " +  TABLE_VALUES + "(" 
+			+ COL_VALUES_ID + ") on delete cascade "
+			+ ");";
+	
+	private static final String DATABASE_CREATE_DICTIONARIES = "create table"
+			+ TABLE_DICTIONARIES + " (" + COL_DICTIONARIES_ID
+			+ " integer primary key autoincrement, "
+			+ COL_DICTIONARIES_NAME + " text not null"
+			+ ");";;
 	
 	public DatabaseHelper(Context context) {
 	    super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -53,6 +71,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	    database.execSQL(DATABASE_CREATE_WORDS);
 	    database.execSQL(DATABASE_CREATE_VALUES);
 	    database.execSQL(DATABASE_CREATE_LINKS);
+	    database.execSQL(DATABASE_CREATE_DICTIONARIES);
 	  }
 	  
 	  @Override
@@ -63,6 +82,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	    db.execSQL("DROP TABLE IF EXISTS " + TABLE_WORDS);
 	    db.execSQL("DROP TABLE IF EXISTS " + TABLE_VALUES);
 	    db.execSQL("DROP TABLE IF EXISTS " + TABLE_LINKS);
+	    db.execSQL("DROP TABLE IF EXISTS " + TABLE_DICTIONARIES);
 	    onCreate(db);
 	  }
 }
