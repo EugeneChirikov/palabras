@@ -22,8 +22,6 @@ public class DictionaryManager {
 	}
 	
 	public void addWord(String word_source, List<String> values, String tag){
-		/*
-		 */
 			dataSource.open();
 			dataSource.createValue(values.get(0), tag);
 			
