@@ -14,10 +14,9 @@ public class Word {
 		
 	}
 	
-	public Word(String source, List<String> values, String dict_name){
+	public Word(String source, List<Value> values){
 		this.source = source;
-		this.values = new ArrayList<Value>();
-		this.setValues(values, dict_name);
+		this.values = values;
 	}
 	
 	public Word(String source){
@@ -62,12 +61,6 @@ public class Word {
 	
 	public void setValues(List<Value> values){
 		this.values = values;
-	}
-	
-	public void setValues(List<String> values, String dict_name){
-		for(int i = 0; i < values.size(); i ++){
-			this.values.add(new Value(values.get(i), dict_name));
-		}
 	}
 	
 	public List<Value> getValues(){

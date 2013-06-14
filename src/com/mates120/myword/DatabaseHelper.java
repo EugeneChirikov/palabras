@@ -32,7 +32,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	private static final String DATABASE_CREATE_WORDS = "create table"
 			+ TABLE_WORDS + "(" + COL_WORDS_ID
 			+ " integer primary key autoincrement, " + COL_WORDS_SOURCE
-		    + " text not null, " + COL_WORDS_SEARCH_COUNTER
+		    + " text not null unique, " + COL_WORDS_SEARCH_COUNTER
 		    + " integer not null, " + COL_WORDS_RATING
 		    + " integer not null);";
 	

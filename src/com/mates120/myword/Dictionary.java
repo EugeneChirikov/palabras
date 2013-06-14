@@ -1,5 +1,6 @@
 package com.mates120.myword;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Dictionary {
@@ -10,8 +11,11 @@ public class Dictionary {
 		this.name = name;
 	}
 	
-	public void addWord(String word_source, List<String> values){
-		this.words.add(new Word(word_source, values, name));
+	public void addWord(String word_source, List<String> valuesInString){
+		List <Value> values = new ArrayList<Value>();
+		for (int i = 0; i < valuesInString.size(); i++)
+			values.add(new Value(valuesInString.get(i), name));
+		this.words.add(new Word(word_source, values));
 	}
 	
 	public String getName(){
@@ -20,5 +24,9 @@ public class Dictionary {
 	
 	public List<Word> getWords(){
 		return this.words;
+	}
+	
+	public Word getWord(int index){
+		return words.get(index);
 	}
 }
