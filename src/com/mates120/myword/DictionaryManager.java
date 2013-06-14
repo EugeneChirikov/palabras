@@ -26,7 +26,7 @@ public class DictionaryManager {
 	
 	/*Func to add single word with single value. Now not usable.
 	 * 
-	 * private void addWord(String word_source, String value_source, String dictName){
+	 * private void addWord(String wordSource, String value_source, String dictName){
 		long dictId;
 		long valueId;
 		long wordId;
@@ -39,25 +39,40 @@ public class DictionaryManager {
 		
 	}*/
 	
-	private void addWord(String word_source, List<Value> values, String dictName){
+	private void addWord(String wordSource, List<Value> values, String dictName){
 		long dictId;
-		long valueId;
-		long valueIds[] = new long[values.size()];
 		long wordId;
+		long valueIds[];
 		dataSource.open();
 		dictId = dataSource.insertDictionary(dictName);
+		valueIds = insertValues(values, dictId);
+		Word existWord = dataSource.getWordBySource(wordSource);
+		if(!existWord.equals(null)){
+			wordId = existWord.getId();
+		} else {
+			wordId = dataSource.insertWord(wordSource);
+		}
+		dataSource.insertWord(wordSource);
+		createWordLinks(wordId, valueIds);
+		dataSource.close();
+	}
+	
+	private long[] insertValues(List<Value> values, long dictId){
+		long valueId;
+		long valueIds[] = new long[values.size()];
 		for (int i = 0; i < values.size(); i++){
 			valueId = dataSource.insertValue(values.get(i).getValue(), dictId);
 			valueIds[i] = valueId;
 		}
-		wordId = dataSource.insertWord(word_source);
-		for (int i = 0; i < valueIds.length; i ++){
-			dataSource.createLink(wordId, valueIds[i]);
-		}
-		dataSource.close();
+		return valueIds;
 	}
 	
-	public Word getWord(String word_source){
+	private void createWordLinks(long wordId, long[] valueIds){
+		for (int i = 0; i < valueIds.length; i ++)
+			dataSource.createLink(wordId, valueIds[i]);
+	}
+	
+	public Word getWord(String wordSource){
 		Word word = new Word();
 		return word;
 	}

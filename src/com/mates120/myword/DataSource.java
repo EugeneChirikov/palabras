@@ -59,9 +59,9 @@ public class DataSource {
 		Cursor cursor = database.query(DatabaseHelper.TABLE_WORDS, allWordsColumns, 
 				DatabaseHelper.COL_WORDS_SOURCE + " = " + source, null, null, null, null);
 		cursor.moveToFirst();
-		Word word = cursorToWord(cursor);
+		Word foundWord = cursorToWord(cursor);
 		cursor.close();
-		return word;
+		return foundWord;
 	}
 	
 	public List<Word> getAllWords(){
@@ -79,11 +79,14 @@ public class DataSource {
 	}
 	
 	private Word cursorToWord(Cursor cursor){
-		Word word = new Word();
-		word.setId(cursor.getLong(0));
-		word.setSource(cursor.getString(1));
-		word.setSearchCount(cursor.getInt(2));
-		word.setRating(cursor.getInt(3));
+		Word word = null;
+		if(cursor != null && cursor.getCount() > 0){
+			word = new Word();
+			word.setId(cursor.getLong(0));
+			word.setSource(cursor.getString(1));
+			word.setSearchCount(cursor.getInt(2));
+			word.setRating(cursor.getInt(3));
+		}
 		return word;
 	}
 	
@@ -101,6 +104,18 @@ public class DataSource {
 				DatabaseHelper.COL_VALUES_ID + " = " + id, null);
 	}
 	
+	public Value getValue(Value value){
+		Cursor cursor = database.query(DatabaseHelper.TABLE_VALUES, allValuesColumns, 
+				DatabaseHelper.COL_VALUES_VALUE + " = " + value.getValue() 
+				+ " and " + DatabaseHelper.COL_VALUES_DICT_ID 
+				+ " = " + getDictionaryId(value.getDictionary()), 
+				null, null, null, null);
+		cursor.moveToFirst();
+		Value findValue = cursorToValue(cursor);
+		cursor.close();
+		return findValue;
+	}
+	
 	public List<Value> getAllValues(){
 		List<Value> values = new ArrayList<Value>();
 		Cursor cursor = database.query(DatabaseHelper.TABLE_VALUES, allValuesColumns, 
@@ -116,10 +131,13 @@ public class DataSource {
 	}
 	
 	private Value cursorToValue(Cursor cursor){
-		Value value = new Value();
-		value.setId(cursor.getLong(0));
-		value.setValue(cursor.getString(1));
-		value.setDictionary(getDictionaryName(cursor.getLong(2)));
+		Value value = null;
+		if(cursor != null && cursor.getCount() > 0){
+			value = new Value();
+			value.setId(cursor.getLong(0));
+			value.setValue(cursor.getString(1));
+			value.setDictionary(getDictionaryName(cursor.getLong(2)));
+		}
 		return value;
 	}
 	
@@ -165,6 +183,16 @@ public class DataSource {
 		String name = cursor.getString(1);
 		cursor.close();
 		return name;
+	}
+	
+	public long getDictionaryId(String dictName){
+		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
+				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_NAME
+				+ " = " + dictName,	null, null, null, null);
+		cursor.moveToFirst();
+		long id = cursor.getLong(0);
+		cursor.close();
+		return id;
 	}
 	
 	private List<Value> getWordValues(long wordId){
