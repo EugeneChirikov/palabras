@@ -10,12 +10,19 @@ public class Dictionary {
 		this.name = name;
 	}
 	
-	public void addWord(String word_source, List<String> values){
-		this.words.add(new Word(word_source, values, name));
+	public Dictionary(){		
+	}
+
+	public void setName(String name){
+		this.name = name;
 	}
 	
 	public String getName(){
 		return this.name;
+	}
+	
+	public void addWord(String word_source, List<String> values){
+		this.words.add(new Word(word_source, values, name));
 	}
 	
 	public List<Word> getWords(){

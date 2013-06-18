@@ -3,30 +3,56 @@ package com.mates120.myword;
 import java.io.File;
 import java.io.FilenameFilter;
 
-public class DictionaryFile 
+import com.mates120.myword.Exceptions.*;
+
+
+public class DictionaryFile
 {
-	private String extension = null;
-	private String dirPath = null;
-	DictionaryFile(String dirPath, String extension)
+	private String[] extensions;
+	private String searchPath = null;
+
+	public DictionaryFile(String searchPath, String[] extensions)
 	{
-		this.extension = extension;
-		this.dirPath = dirPath;
+		this.extensions = extensions;
+		this.searchPath = searchPath;
+	}
+
+	public DictionaryFile(String searchPath, String extension)
+	{
+		this.extensions = new String[1];
+		this.extensions[0] = extension;
+		this.searchPath = searchPath;
+	}
+
+	private File makeDirectoryObject() throws NotADirectoryException
+	{
+		File directory = new File(this.searchPath);
+		if (!directory.isDirectory())
+			throw new NotADirectoryException();
+		return directory;
+	}
+
+	private String getValidPathToFile() throws DictionaryParserException
+	{
+		File directory = this.makeDirectoryObject();
+		DictionaryFilenamesFilter filter = new DictionaryFilenamesFilter(this.extensions);
+		String[] filesOfDictionaries = directory.list(filter);
+		this.requireOnlyOneFile(filesOfDictionaries.length);		
+		return null;
 	}
 	
-	File fileDescriptor()
+	private void requireOnlyOneFile(int listLenght) throws ToManyAlikeFilesException,
+	                                                       ExpectedFilesNotFoundExeption
 	{
-		File directory = new File(this.dirPath);
-		if (!directory.isDirectory())
-		{
-			return null;
-		}
-		String[] filesOfDictionaries = directory.list()
+		if (listLenght > 1)
+			throw new ToManyAlikeFilesException();
+		if (listLenght == 0)
+			throw new ExpectedFilesNotFoundExeption();
 	}
 
 	public class DictionaryFilenamesFilter implements FilenameFilter
 	{
-		private String[] extensions = {".ifo", ".idx", ".dict.dz"};
-		
+		private String[] extensions;
 		public DictionaryFilenamesFilter(String[] extensions)
 		{
 			this.extensions = extensions;
@@ -34,8 +60,10 @@ public class DictionaryFile
 
 		@Override
 		public boolean accept(File dir, String filename) {
-			// TODO Auto-generated method stub		
-			return filename.endsWith();
+			for (int i = 0; i < extensions.length; ++i)
+				if (filename.endsWith(extensions[i]))
+					return true;
+			return false;
 		}
 		
 	}
