@@ -1,14 +1,16 @@
 package com.mates120.myword;
 
+import com.mates120.myword.Exceptions.DictionaryParserException;
+
 public class StarDictParser {
-	private final String DICT_DATA_PATH = "/sdcard/data/dictdata/";
+	private final String DICT_DATA_PATH = "/storage/sdcard0/dictdata/";
 	private Dictionary parsedDict;
 
 	public StarDictParser(){
 		this.parsedDict = new Dictionary();
 	}
 
-	public Dictionary parseAll()
+	public Dictionary parseAll() throws DictionaryParserException
 	{		
 		DictionaryFile ifoFile = new DictionaryFile(DICT_DATA_PATH, ".ifo");
 		parseIFO(ifoFile);
@@ -20,15 +22,15 @@ public class StarDictParser {
 		return null;
 	}
 	
-	private void parseIFO(DictionaryFile ifoFile){
-		
+	private void parseIFO(DictionaryFile ifoFile) throws DictionaryParserException{
+		System.out.println(ifoFile.getValidPathToFile());
 	}
 	
-	private void parseIDX(DictionaryFile idxFile){
-		
+	private void parseIDX(DictionaryFile idxFile) throws DictionaryParserException{
+		System.out.println(idxFile.getValidPathToFile());
 	}
 	
-	private void parseDICT(DictionaryFile dictFile){
-		
+	private void parseDICT(DictionaryFile dictFile) throws DictionaryParserException{
+		System.out.println(dictFile.getValidPathToFile());
 	}
 }

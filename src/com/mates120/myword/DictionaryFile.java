@@ -32,13 +32,14 @@ public class DictionaryFile
 		return directory;
 	}
 
-	private String getValidPathToFile() throws DictionaryParserException
+	public String getValidPathToFile() throws DictionaryParserException
 	{
 		File directory = this.makeDirectoryObject();
 		DictionaryFilenamesFilter filter = new DictionaryFilenamesFilter(this.extensions);
 		String[] filesOfDictionaries = directory.list(filter);
+		debugPrintFileNames(filesOfDictionaries);
 		this.requireOnlyOneFile(filesOfDictionaries.length);		
-		return null;
+		return filesOfDictionaries[0];
 	}
 	
 	private void requireOnlyOneFile(int listLenght) throws ToManyAlikeFilesException,
@@ -50,6 +51,15 @@ public class DictionaryFile
 			throw new ExpectedFilesNotFoundExeption();
 	}
 
+	private void debugPrintFileNames(String[] fileNames)
+	{
+		System.out.println("debugPrintFileNames:");
+		for (int i = 0; i < fileNames.length; ++i)
+		{
+			System.out.println(fileNames[i]);
+		}
+	}
+	
 	public class DictionaryFilenamesFilter implements FilenameFilter
 	{
 		private String[] extensions;
