@@ -22,9 +22,6 @@ public class DataSource {
 			DatabaseHelper.COL_VALUES_VALUE,
 			DatabaseHelper.COL_VALUES_DICT_ID};
 	
-	private String[] allLinksColumns = {DatabaseHelper.COL_LINKS_WORD,
-			DatabaseHelper.COL_LINKS_VALUE};
-	
 	private String[] allDictionariesColumns = {DatabaseHelper.COL_DICTIONARIES_ID,
 			DatabaseHelper.COL_DICTIONARIES_NAME};
 	
@@ -199,7 +196,7 @@ public class DataSource {
 		List<Value> values = new ArrayList<Value>();
 		Cursor cursor = database.rawQuery("select " + allValuesColumns[0] 
 				+", " + allValuesColumns[1] + ", " + allValuesColumns[2] 
-				+ " from "	+ DatabaseHelper.TABLE_LINKS 
+				+ " from "	+ DatabaseHelper.TABLE_LINKS
 				+ " join " + DatabaseHelper.TABLE_VALUES
 				+ " where " + DatabaseHelper.COL_LINKS_WORD + " = " + wordId, null);
 		cursor.moveToFirst();
