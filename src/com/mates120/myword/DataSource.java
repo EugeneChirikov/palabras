@@ -19,7 +19,7 @@ public class DataSource {
 			DatabaseHelper.COL_WORDS_RATING};
 	
 	private String[] allValuesColumns = {DatabaseHelper.COL_VALUES_ID, 
-			DatabaseHelper.COL_VALUES_VALUE,
+			DatabaseHelper.COL_VALUES_SOURCE,
 			DatabaseHelper.COL_VALUES_DICT_ID};
 	
 	private String[] allDictionariesColumns = {DatabaseHelper.COL_DICTIONARIES_ID,
@@ -53,10 +53,14 @@ public class DataSource {
 	}
 	
 	public Word getWordBySource(String source){
+		Word foundWord = null;
+		String args[] = {source};
 		Cursor cursor = database.query(DatabaseHelper.TABLE_WORDS, allWordsColumns, 
-				DatabaseHelper.COL_WORDS_SOURCE + " = " + source, null, null, null, null);
-		cursor.moveToFirst();
-		Word foundWord = cursorToWord(cursor);
+				DatabaseHelper.COL_WORDS_SOURCE + " = ?", args, null, null, null);
+		if(cursor!=null && cursor.getCount()>0){
+			cursor.moveToFirst();
+			foundWord = cursorToWord(cursor);
+		}
 		cursor.close();
 		return foundWord;
 	}
@@ -89,7 +93,7 @@ public class DataSource {
 	
 	public long insertValue(String value, long dictionaryId){
 		ContentValues values = new ContentValues();
-		values.put(DatabaseHelper.COL_VALUES_VALUE, value);
+		values.put(DatabaseHelper.COL_VALUES_SOURCE, value);
 		values.put(DatabaseHelper.COL_VALUES_DICT_ID, dictionaryId);
 		return database.insert(DatabaseHelper.TABLE_VALUES, null, values);
 	}
@@ -103,7 +107,7 @@ public class DataSource {
 	
 	public Value getValue(Value value){
 		Cursor cursor = database.query(DatabaseHelper.TABLE_VALUES, allValuesColumns, 
-				DatabaseHelper.COL_VALUES_VALUE + " = " + value.getValue() 
+				DatabaseHelper.COL_VALUES_SOURCE + " = " + value.getValue() 
 				+ " and " + DatabaseHelper.COL_VALUES_DICT_ID 
 				+ " = " + getDictionaryId(value.getDictionary()), 
 				null, null, null, null);
@@ -183,11 +187,15 @@ public class DataSource {
 	}
 	
 	public long getDictionaryId(String dictName){
+		long id = 0;
+		String queryArg[] = {dictName};
 		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
 				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_NAME
-				+ " = " + dictName,	null, null, null, null);
-		cursor.moveToFirst();
-		long id = cursor.getLong(0);
+				+ " = ?",	queryArg, null, null, null);
+		if(cursor != null && cursor.getCount() > 0){
+			cursor.moveToFirst();
+			id = cursor.getLong(0);
+		}
 		cursor.close();
 		return id;
 	}

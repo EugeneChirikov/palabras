@@ -3,6 +3,7 @@ package com.mates120.myword;
 import java.util.List;
 
 import android.content.Context;
+import android.util.Log;
 
 public class DictionaryManager {
 	private DataSource dataSource;
@@ -18,12 +19,12 @@ public class DictionaryManager {
 					dictionary.getWord(i).getValues(), 
 					dictionary.getName());
 		}
-		dataSource.close();
+		//dataSource.close();
 	}
 	
 	public void deleteDictionary(String name){
-		long dictId;
-		dictId = dataSource.deleteDictionary(name);
+		//long dictId;
+		/*dictId = */dataSource.deleteDictionary(name);
 	}
 	
 	/*Func to add single word with single value. Now not usable.
@@ -45,25 +46,25 @@ public class DictionaryManager {
 		long dictId;
 		long wordId;
 		long valueIds[];
-		dictId = dataSource.insertDictionary(dictName);
+		dictId = dataSource.getDictionaryId(dictName);
+		Log.i("DICTIONARY", "Cached dict_id:" + dictId);
+		if (dictId == 0){
+			dictId = dataSource.insertDictionary(dictName);
+		}
 		valueIds = insertValues(values, dictId);
 		Word existWord = dataSource.getWordBySource(wordSource);
-		if(!existWord.equals(null)){
+		if(existWord != null){
 			wordId = existWord.getId();
 		} else {
 			wordId = dataSource.insertWord(wordSource);
 		}
-		dataSource.insertWord(wordSource);
 		createWordLinks(wordId, valueIds);
 	}
 	
 	private long[] insertValues(List<Value> values, long dictId){
-		long valueId;
 		long valueIds[] = new long[values.size()];
-		for (int i = 0; i < values.size(); i++){
-			valueId = dataSource.insertValue(values.get(i).getValue(), dictId);
-			valueIds[i] = valueId;
-		}
+		for (int i = 0; i < values.size(); i++)
+			valueIds[i] = dataSource.insertValue(values.get(i).getValue(), dictId);
 		return valueIds;
 	}
 	
