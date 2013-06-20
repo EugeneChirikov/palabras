@@ -19,12 +19,18 @@ public class DictionaryManager {
 					dictionary.getWord(i).getValues(), 
 					dictionary.getName());
 		}
-		//dataSource.close();
+		dataSource.close();
 	}
 	
 	public void deleteDictionary(String name){
-		//long dictId;
-		/*dictId = */dataSource.deleteDictionary(name);
+		long dictId;
+		long valuesIds[];
+		dataSource.open();
+		dictId = dataSource.deleteDictionaryByName(name);
+		valuesIds = dataSource.getDictionaryValuesIds(dictId);
+		deleteLinksOfValues(valuesIds);
+		dataSource.deleteDictionaryValues(dictId);
+		dataSource.close();
 	}
 	
 	/*Func to add single word with single value. Now not usable.
@@ -71,6 +77,16 @@ public class DictionaryManager {
 	private void createWordLinks(long wordId, long[] valueIds){
 		for (int i = 0; i < valueIds.length; i ++)
 			dataSource.createLink(wordId, valueIds[i]);
+	}
+	
+	private void deleteLinksOfValues(long valuesIds[]){
+		long wordId;
+		for(int i = 0; i < valuesIds.length; i++){
+			wordId = dataSource.getWordIdByValueId(valuesIds[i]);
+			if(dataSource.wordHasOneValue(wordId))
+				dataSource.deleteWordById(wordId);
+			dataSource.deleteLinkByValue(valuesIds[i]);
+		}
 	}
 	
 	public Word getWord(String wordSource){
