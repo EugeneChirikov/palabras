@@ -63,29 +63,15 @@ public class DataSource {
 	
 	public Word getWordBySource(String source){
 		Word foundWord = null;
-		String args[] = {source};
 		Cursor cursor = database.query(DatabaseHelper.TABLE_WORDS, allWordsColumns, 
-				DatabaseHelper.COL_WORDS_SOURCE + " = ?", args, null, null, null);
+				DatabaseHelper.COL_WORDS_SOURCE + " = ?",
+				new String[]{source}, null, null, null);
 		if(cursor!=null && cursor.getCount()>0){
 			cursor.moveToFirst();
 			foundWord = cursorToWord(cursor);
 		}
 		cursor.close();
 		return foundWord;
-	}
-	
-	public List<Word> getAllWords(){
-		List<Word> words = new ArrayList<Word>();
-		Cursor cursor = database.query(DatabaseHelper.TABLE_WORDS, allWordsColumns, 
-				null, null, null, null, null);
-		cursor.moveToFirst();
-		while (!cursor.isAfterLast()){
-			Word word = cursorToWord(cursor);
-			words.add(word);
-			cursor.moveToNext();
-		}
-		cursor.close();
-		return words;
 	}
 	
 	private Word cursorToWord(Cursor cursor){
@@ -122,11 +108,9 @@ public class DataSource {
 	
 	public long[] getDictionaryValuesIds(long dictionaryId){
 		long valuesIds[];
-		String valueIdColumn[] = {DatabaseHelper.COL_VALUES_ID};
-		String arg[] = {String.valueOf(dictionaryId)}; 
-		Cursor cursor = database.query(DatabaseHelper.TABLE_VALUES, valueIdColumn, 
+		Cursor cursor = database.query(DatabaseHelper.TABLE_VALUES, new String[]{DatabaseHelper.COL_VALUES_ID}, 
 				DatabaseHelper.COL_VALUES_DICT_ID + " = ?",
-				arg, null, null, null);
+				new String[]{String.valueOf(dictionaryId)}, null, null, null);
 		valuesIds = new long[cursor.getCount()];
 		cursor.moveToFirst();
 		for (int i = 0; !cursor.isAfterLast(); i++){
@@ -137,11 +121,16 @@ public class DataSource {
 		return valuesIds;
 	}
 	
-	public List<Value> getAllValues(){
+	public List<Value> getWordValues(long wordId){
 		List<Value> values = new ArrayList<Value>();
-		Cursor cursor = database.query(DatabaseHelper.TABLE_VALUES, allValuesColumns, 
-				null, null, null, null, null);
+		Cursor cursor = database.rawQuery("select " + allValuesColumns[0] 
+				+", " + allValuesColumns[1] + ", " + allValuesColumns[2] 
+				+ " from "	+ DatabaseHelper.TABLE_LINKS
+				+ " join " + DatabaseHelper.TABLE_VALUES
+				+ " where " + DatabaseHelper.COL_LINKS_WORD + " = " + wordId, null);
 		cursor.moveToFirst();
+		/*The issue could be here.
+		 */
 		while (!cursor.isAfterLast()){
 			Value value = cursorToValue(cursor);
 			values.add(value);
@@ -177,10 +166,9 @@ public class DataSource {
 	
 	public long getWordIdByValueId(long valueId){
 		long wordId;
-		String arg[] = {String.valueOf(valueId)};
 		Cursor cursor = database.query(DatabaseHelper.TABLE_LINKS, 
 				allLinksColumns, DatabaseHelper.COL_LINKS_VALUE + " = ?",
-				arg, null, null, null);
+				new String[]{String.valueOf(valueId)}, null, null, null);
 		cursor.moveToFirst();
 		wordId = cursor.getLong(0);
 		cursor.close();
@@ -189,10 +177,9 @@ public class DataSource {
 	
 	public boolean wordHasOneValue(long wordId){
 		boolean isOne = false;
-		String arg[] = {String.valueOf(wordId)};
 		Cursor cursor = database.query(DatabaseHelper.TABLE_LINKS,
 				allLinksColumns, DatabaseHelper.COL_LINKS_WORD + " = ?",
-				arg, null, null, null);
+				new String[]{String.valueOf(wordId)}, null, null, null);
 		if(cursor.getCount() == 1)
 			isOne = true;
 		return isOne;
@@ -205,10 +192,9 @@ public class DataSource {
 	}
 	
 	public long deleteDictionaryByName(String name){
-		String arg[] = {name};
 		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
-				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_NAME 
-				+ " = ?",	arg, null, null, null);
+				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_NAME + " = ?",
+				new String[]{name}, null, null, null);
 		cursor.moveToFirst();
 		long id = cursor.getLong(0);
 		cursor.close();
@@ -219,10 +205,9 @@ public class DataSource {
 	}
 	
 	public String getDictionaryName(long dictId){
-		String arg[] = {String.valueOf(dictId)};
 		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
-				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_ID
-				+ " = ?", arg, null, null, null);
+				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_ID + " = ?",
+				new String[]{String.valueOf(dictId)}, null, null, null);
 		cursor.moveToFirst();
 		String name = cursor.getString(1);
 		cursor.close();
@@ -231,35 +216,14 @@ public class DataSource {
 	
 	public long getDictionaryId(String dictName){
 		long id = 0;
-		String queryArg[] = {dictName};
 		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
-				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_NAME
-				+ " = ?",	queryArg, null, null, null);
+				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_NAME + " = ?",
+				new String[]{dictName}, null, null, null);
 		if(cursor != null && cursor.getCount() > 0){
 			cursor.moveToFirst();
 			id = cursor.getLong(0);
 		}
 		cursor.close();
 		return id;
-	}
-	
-	private List<Value> getWordValues(long wordId){
-		List<Value> values = new ArrayList<Value>();
-		Cursor cursor = database.rawQuery("select " + allValuesColumns[0] 
-				+", " + allValuesColumns[1] + ", " + allValuesColumns[2] 
-				+ " from "	+ DatabaseHelper.TABLE_LINKS
-				+ " join " + DatabaseHelper.TABLE_VALUES
-				+ " where " + DatabaseHelper.COL_LINKS_WORD + " = " + wordId, null);
-		cursor.moveToFirst();
-		/*The issue could be here.
-		 */
-		System.out.println(cursor.getColumnCount());
-		while (!cursor.isAfterLast()){
-			Value value = cursorToValue(cursor);
-			values.add(value);
-			cursor.moveToNext();
-		}
-		cursor.close();
-		return values;
 	}
 }

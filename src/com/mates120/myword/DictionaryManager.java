@@ -90,7 +90,10 @@ public class DictionaryManager {
 	}
 	
 	public Word getWord(String wordSource){
-		Word word = new Word();
+		Word word = null;
+		word = dataSource.getWordBySource(wordSource);
+		if(word != null)
+			word.setValues(dataSource.getWordValues(word.getId()));
 		return word;
 	}
 }
