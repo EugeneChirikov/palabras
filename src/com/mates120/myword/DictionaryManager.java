@@ -3,7 +3,6 @@ package com.mates120.myword;
 import java.util.List;
 
 import android.content.Context;
-import android.util.Log;
 
 public class DictionaryManager {
 	private DataSource dataSource;
@@ -23,42 +22,22 @@ public class DictionaryManager {
 	}
 	
 	public void deleteDictionary(String name){
-		long dictId;
 		long valuesIds[];
 		dataSource.open();
-		dictId = dataSource.deleteDictionaryByName(name);
-		valuesIds = dataSource.getDictionaryValuesIds(dictId);
+		valuesIds = dataSource.getDictionaryValuesIds(name);
 		deleteLinksOfValues(valuesIds);
-		dataSource.deleteDictionaryValues(dictId);
+		dataSource.deleteDictionaryValues(name);
+		dataSource.deleteDictionaryByName(name);
 		dataSource.close();
 	}
 	
-	/*Func to add single word with single value. Now not usable.
-	 * 
-	 * private void addWord(String wordSource, String value_source, String dictName){
-		long dictId;
-		long valueId;
-		long wordId;
-		dataSource.open();
-		dictId = dataSource.insertDictionary(dictName);
-		valueId = dataSource.insertValue(value_source, dictId);
-		wordId = dataSource.insertWord(word_source);
-		dataSource.createLink(wordId, valueId);
-		dataSource.close();
-		
-	}*/
-	
-	private void addWord(String wordSource, List<Value> values, String dictName){
-		long dictId;
+	private void addWord(String wordSource, List<String> values, String dictName){
 		long wordId;
 		long valueIds[];
-		dictId = dataSource.getDictionaryId(dictName);
-		Log.i("DICTIONARY", "Cached dict_id:" + dictId);
-		if (dictId == 0){
-			dictId = dataSource.insertDictionary(dictName);
-		}
-		valueIds = insertValues(values, dictId);
-		Word existWord = dataSource.getWordBySource(wordSource);
+		if(!dataSource.dictionaryInDB(dictName))
+			dataSource.insertDictionary(dictName);
+		valueIds = insertValues(values, dictName);
+		Word existWord = dataSource.getWord(wordSource);
 		if(existWord != null){
 			wordId = existWord.getId();
 		} else {
@@ -67,10 +46,10 @@ public class DictionaryManager {
 		createWordLinks(wordId, valueIds);
 	}
 	
-	private long[] insertValues(List<Value> values, long dictId){
+	private long[] insertValues(List<String> values, String dictionaryName){
 		long valueIds[] = new long[values.size()];
 		for (int i = 0; i < values.size(); i++)
-			valueIds[i] = dataSource.insertValue(values.get(i).getValue(), dictId);
+			valueIds[i] = dataSource.insertValue(values.get(i), dictionaryName);
 		return valueIds;
 	}
 	
@@ -90,10 +69,12 @@ public class DictionaryManager {
 	}
 	
 	public Word getWord(String wordSource){
+		dataSource.open();
 		Word word = null;
-		word = dataSource.getWordBySource(wordSource);
+		word = dataSource.getWord(wordSource);
 		if(word != null)
 			word.setValues(dataSource.getWordValues(word.getId()));
+		dataSource.close();
 		return word;
 	}
 }

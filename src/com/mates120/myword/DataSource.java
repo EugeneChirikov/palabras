@@ -40,19 +40,12 @@ public class DataSource {
 		dbHelper.close();
 	}
 	
-	public long insertWord(String word_source){
+	public long insertWord(String wordSource){
 		ContentValues values = new ContentValues();
-		values.put(DatabaseHelper.COL_WORDS_SOURCE, word_source);
+		values.put(DatabaseHelper.COL_WORDS_SOURCE, wordSource);
 		values.put(DatabaseHelper.COL_WORDS_SEARCH_COUNTER, 0);
 		values.put(DatabaseHelper.COL_WORDS_RATING, 0);
 		return database.insert(DatabaseHelper.TABLE_WORDS, null, values);
-	}
-	
-	public void deleteWord(Word word){
-		long id = word.getId();
-		System.out.println("Word deleted with id: " + id);
-		database.delete(DatabaseHelper.TABLE_WORDS, 
-				DatabaseHelper.COL_WORDS_ID + " = " + id, null);
 	}
 	
 	public void deleteWordById(long wordId){
@@ -61,15 +54,13 @@ public class DataSource {
 				DatabaseHelper.COL_WORDS_ID + " = " + wordId, null);
 	}
 	
-	public Word getWordBySource(String source){
+	public Word getWord(String source){
 		Word foundWord = null;
 		Cursor cursor = database.query(DatabaseHelper.TABLE_WORDS, allWordsColumns, 
 				DatabaseHelper.COL_WORDS_SOURCE + " = ?",
 				new String[]{source}, null, null, null);
-		if(cursor!=null && cursor.getCount()>0){
-			cursor.moveToFirst();
-			foundWord = cursorToWord(cursor);
-		}
+		cursor.moveToFirst();
+		foundWord = cursorToWord(cursor);
 		cursor.close();
 		return foundWord;
 	}
@@ -86,28 +77,24 @@ public class DataSource {
 		return word;
 	}
 	
-	public long insertValue(String value, long dictionaryId){
+	public long insertValue(String value, String dictionaryName){
+		long dictId = getDictionaryId(dictionaryName);
 		ContentValues values = new ContentValues();
 		values.put(DatabaseHelper.COL_VALUES_SOURCE, value);
-		values.put(DatabaseHelper.COL_VALUES_DICT_ID, dictionaryId);
+		values.put(DatabaseHelper.COL_VALUES_DICT_ID, dictId);
 		return database.insert(DatabaseHelper.TABLE_VALUES, null, values);
 	}
 	
-	public void deleteValue(Value value){
-		long id = value.getId();
-		System.out.println("Value deleted with id: " + id);
+	public void deleteDictionaryValues(String dictionaryName){
+		long dictId = getDictionaryId(dictionaryName);
+		System.out.println("Value deleted with dict_name: " + dictionaryName);
 		database.delete(DatabaseHelper.TABLE_VALUES, 
-				DatabaseHelper.COL_VALUES_ID + " = " + id, null);
+				DatabaseHelper.COL_DICTIONARIES_ID + " = " + dictId, null);
 	}
 	
-	public void deleteDictionaryValues(long dictionaryId){
-		System.out.println("Value deleted with dict_id: " + dictionaryId);
-		database.delete(DatabaseHelper.TABLE_VALUES, 
-				DatabaseHelper.COL_VALUES_DICT_ID + " = " + dictionaryId, null);
-	}
-	
-	public long[] getDictionaryValuesIds(long dictionaryId){
+	public long[] getDictionaryValuesIds(String dictionaryName){
 		long valuesIds[];
+		long dictionaryId = getDictionaryId(dictionaryName);
 		Cursor cursor = database.query(DatabaseHelper.TABLE_VALUES, new String[]{DatabaseHelper.COL_VALUES_ID}, 
 				DatabaseHelper.COL_VALUES_DICT_ID + " = ?",
 				new String[]{String.valueOf(dictionaryId)}, null, null, null);
@@ -126,11 +113,11 @@ public class DataSource {
 		Cursor cursor = database.rawQuery("select " + allValuesColumns[0] 
 				+", " + allValuesColumns[1] + ", " + allValuesColumns[2] 
 				+ " from "	+ DatabaseHelper.TABLE_LINKS
-				+ " join " + DatabaseHelper.TABLE_VALUES
+				+ " links inner join " + DatabaseHelper.TABLE_VALUES
+				+ " val_s ON links."+ DatabaseHelper.COL_LINKS_VALUE 
+				+ " = val_s." + DatabaseHelper.COL_VALUES_ID 
 				+ " where " + DatabaseHelper.COL_LINKS_WORD + " = " + wordId, null);
 		cursor.moveToFirst();
-		/*The issue could be here.
-		 */
 		while (!cursor.isAfterLast()){
 			Value value = cursorToValue(cursor);
 			values.add(value);
@@ -192,12 +179,7 @@ public class DataSource {
 	}
 	
 	public long deleteDictionaryByName(String name){
-		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
-				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_NAME + " = ?",
-				new String[]{name}, null, null, null);
-		cursor.moveToFirst();
-		long id = cursor.getLong(0);
-		cursor.close();
+		long id = getDictionaryId(name);
 		System.out.println("Dictionary deleted with id: " + id);
 		database.delete(DatabaseHelper.TABLE_DICTIONARIES, 
 				DatabaseHelper.COL_VALUES_ID + " = " + id, null);
@@ -205,12 +187,15 @@ public class DataSource {
 	}
 	
 	public String getDictionaryName(long dictId){
+		String name = null;
 		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
 				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_ID + " = ?",
 				new String[]{String.valueOf(dictId)}, null, null, null);
-		cursor.moveToFirst();
-		String name = cursor.getString(1);
-		cursor.close();
+		if(cursor != null && cursor.getCount() > 0){
+			cursor.moveToFirst();
+			name = cursor.getString(1);
+			cursor.close();
+		}
 		return name;
 	}
 	
@@ -225,5 +210,15 @@ public class DataSource {
 		}
 		cursor.close();
 		return id;
+	}
+	
+	public boolean dictionaryInDB(String dictName){
+		boolean inDB = false;
+		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
+				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_NAME + " = ?",
+				new String[]{dictName}, null, null, null);
+		if(cursor != null && cursor.getCount() > 0)
+			inDB = true;
+		return inDB;
 	}
 }

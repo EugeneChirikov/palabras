@@ -3,35 +3,28 @@ package com.mates120.myword;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.util.Log;
-
 public class Dictionary {
 	private String name;
-	private List<Word> words;
+	private List<SourceWord> words;
 	
 	public Dictionary(String name){
 		this.name = name;
-		words = new ArrayList<Word>();
+		words = new ArrayList<SourceWord>();
 	}
 	
 	public void addWord(String word_source, List<String> valuesInString){
-		List <Value> values = new ArrayList<Value>();
-		for (int i = 0; i < valuesInString.size(); i++){
-			Log.i("VALUE", valuesInString.get(i));
-			values.add(new Value(valuesInString.get(i), name));
-		}
-		this.words.add(new Word(word_source, values));
+		this.words.add(new SourceWord(word_source, valuesInString));
 	}
 	
 	public String getName(){
 		return this.name;
 	}
 	
-	public List<Word> getWords(){
+	public List<SourceWord> getWords(){
 		return this.words;
 	}
 	
-	public Word getWord(int index){
+	public SourceWord getWord(int index){
 		return words.get(index);
 	}
 }

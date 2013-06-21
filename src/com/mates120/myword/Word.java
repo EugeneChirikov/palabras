@@ -14,11 +14,6 @@ public class Word {
 		
 	}
 	
-	public Word(String source, List<Value> values){
-		this.source = source;
-		this.values = values;
-	}
-	
 	public Word(String source){
 		this.id = 0;
 		this.source = source;
@@ -65,6 +60,10 @@ public class Word {
 	
 	public List<Value> getValues(){
 		return this.values;
+	}
+	
+	public Value getValue(int index){
+		return this.values.get(index);
 	}
 	
 	@Override

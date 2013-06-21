@@ -20,6 +20,7 @@ public class Examinate extends Activity {
 		test1DictionaryAdd();
 		test2DictionaryAdd();
 		test1DictionaryDelete();
+		test1FindWord("source2everywhere");
 	}
 
 	@Override
@@ -33,6 +34,7 @@ public class Examinate extends Activity {
 	 * Test function to add test1Dict dictionary.
 	 */
 	private void test1DictionaryAdd(){
+		System.out.println("TEST: ADD DICTIONARY1 (test1Dict)");
 		Dictionary testDictionary = new Dictionary("test1Dict");
 		List <String> testWord1Values = new ArrayList<String>();
 		testWord1Values.add("d1w1value1");
@@ -53,6 +55,7 @@ public class Examinate extends Activity {
 	}
 	
 	private void test2DictionaryAdd(){
+		System.out.println("TEST: ADD DICTIONARY2 (test2Dict)");
 		Dictionary testDictionary = new Dictionary("test2Dict");
 		List <String> testWord1Values = new ArrayList<String>();
 		testWord1Values.add("d2w1value1");
@@ -73,7 +76,17 @@ public class Examinate extends Activity {
 	}
 	
 	private void test1DictionaryDelete(){
+		System.out.println("TEST: DELETE DICTIONARY1 (test1Dict)");
 		dictionaryManager.deleteDictionary("test1Dict");
+	}
+	
+	private void test1FindWord(String wordSource){
+		System.out.println("TEST: FIND EXISTING WORD");
+		Word wordToFind = dictionaryManager.getWord(wordSource);
+		System.out.println(wordToFind.getSource());
+		for(int i = 0; i < wordToFind.getValues().size(); i++){
+			System.out.println(wordToFind.getValue(i).getValue());
+		}
 	}
 
 }
