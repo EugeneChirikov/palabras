@@ -12,25 +12,69 @@ public class DictionaryManager {
 	}
 	
 	public void addDictionary(Dictionary dictionary ){
-		
-	}
-	
-	public void addWord(String word_source, String value_source, String tag){
 		dataSource.open();
-		dataSource.createValue(value_source, tag);
-		
+		for (int i = 0; i < dictionary.getWords().size(); i ++){
+			addWord(dictionary.getWord(i).getSource(), 
+					dictionary.getWord(i).getValues(), 
+					dictionary.getName());
+		}
+		dataSource.close();
 	}
 	
-	public void addWord(String word_source, List<String> values, String tag){
-		/*
-		 */
-			dataSource.open();
-			dataSource.createValue(values.get(0), tag);
-			
-		}
+	public void deleteDictionary(String name){
+		long valuesIds[];
+		dataSource.open();
+		valuesIds = dataSource.getDictionaryValuesIds(name);
+		deleteLinksOfValues(valuesIds);
+		dataSource.deleteDictionaryValues(name);
+		dataSource.deleteDictionaryByName(name);
+		dataSource.close();
+	}
 	
-	public Word getWord(String word_source){
-		Word word = new Word();
+	private void addWord(String wordSource, List<String> values, String dictName){
+		long wordId;
+		long valueIds[];
+		if(!dataSource.dictionaryInDB(dictName))
+			dataSource.insertDictionary(dictName);
+		valueIds = insertValues(values, dictName);
+		Word existWord = dataSource.getWord(wordSource);
+		if(existWord != null){
+			wordId = existWord.getId();
+		} else {
+			wordId = dataSource.insertWord(wordSource);
+		}
+		createWordLinks(wordId, valueIds);
+	}
+	
+	private long[] insertValues(List<String> values, String dictionaryName){
+		long valueIds[] = new long[values.size()];
+		for (int i = 0; i < values.size(); i++)
+			valueIds[i] = dataSource.insertValue(values.get(i), dictionaryName);
+		return valueIds;
+	}
+	
+	private void createWordLinks(long wordId, long[] valueIds){
+		for (int i = 0; i < valueIds.length; i ++)
+			dataSource.createLink(wordId, valueIds[i]);
+	}
+	
+	private void deleteLinksOfValues(long valuesIds[]){
+		long wordId;
+		for(int i = 0; i < valuesIds.length; i++){
+			wordId = dataSource.getWordIdByValueId(valuesIds[i]);
+			if(dataSource.wordHasOneValue(wordId))
+				dataSource.deleteWordById(wordId);
+			dataSource.deleteLinkByValue(valuesIds[i]);
+		}
+	}
+	
+	public Word getWord(String wordSource){
+		dataSource.open();
+		Word word = null;
+		word = dataSource.getWord(wordSource);
+		if(word != null)
+			word.setValues(dataSource.getWordValues(word.getId()));
+		dataSource.close();
 		return word;
 	}
 }
