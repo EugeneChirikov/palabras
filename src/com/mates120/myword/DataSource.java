@@ -89,7 +89,7 @@ public class DataSource {
 		long dictId = getDictionaryId(dictionaryName);
 		System.out.println("Value deleted with dict_name: " + dictionaryName);
 		database.delete(DatabaseHelper.TABLE_VALUES, 
-				DatabaseHelper.COL_DICTIONARIES_ID + " = " + dictId, null);
+				DatabaseHelper.COL_VALUES_DICT_ID + " = " + dictId, null);
 	}
 	
 	public long[] getDictionaryValuesIds(String dictionaryName){

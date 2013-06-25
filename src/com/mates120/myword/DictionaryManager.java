@@ -13,11 +13,12 @@ public class DictionaryManager {
 	
 	public void addDictionary(Dictionary dictionary ){
 		dataSource.open();
-		for (int i = 0; i < dictionary.getWords().size(); i ++){
-			addWord(dictionary.getWord(i).getSource(), 
-					dictionary.getWord(i).getValues(), 
-					dictionary.getName());
-		}
+		if(!dataSource.dictionaryInDB(dictionary.getName()))
+			for (int i = 0; i < dictionary.getWords().size(); i ++){
+				addWord(dictionary.getWord(i).getSource(), 
+						dictionary.getWord(i).getValues(), 
+						dictionary.getName());
+			}
 		dataSource.close();
 	}
 	

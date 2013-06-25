@@ -70,4 +70,23 @@ public class Word {
 	public String toString(){
 		return source;
 	}
+	
+	public boolean equals(Word word){
+		boolean isEqual = false;
+		if((this.source.equals(word.getSource())) && 
+				(this.rating == word.getRating()) &&
+				(this.searchCount == word.getSearchCount())) {
+			if((this.values == null)&&(word.getValues() == null)){
+				isEqual = true;}
+			else{
+				for(int i = 0; i < this.values.size();i++)
+					if(!this.values.get(i).getValue().equals(word.getValue(i).getValue())){
+						isEqual = false;
+						break;
+					}else
+						isEqual = true;
+			}
+		}
+		return isEqual;
+	}
 }
