@@ -4,5 +4,6 @@
     <string name="app_name">MyWord</string>
     <string name="action_settings">Settings</string>
     <string name="checkBt">Check</string>
+    <string name="enter_word_for_search">Enter word for search</string>
 
 </resources>
