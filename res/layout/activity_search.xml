@@ -43,6 +43,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/enter_word_for_search"
+                            android:imeOptions="actionSearch"
                             android:inputType="text" >
 
                             <requestFocus />
@@ -51,23 +52,16 @@
 
                     <TableRow
                         android:id="@+id/tableRow1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
                         android:layout_weight="1" >
 
-                        <ScrollView
-                            android:id="@+id/scrollView"
+                        <ListView
+                            android:id="@android:id/list"
                             android:layout_width="match_parent"
-                            android:padding="5dp" >
+                            android:layout_height="wrap_content" >
+                        </ListView>
 
-                            <TableLayout
-                                android:id="@+id/queryTableLayout"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:padding="5dp"
-                                android:stretchColumns="*" >
-                            </TableLayout>
-                        </ScrollView>
                     </TableRow>
                 </TableLayout>
 
@@ -75,6 +69,18 @@
                     android:id="@+id/Searchsettings"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" >
+
+                    <ScrollView
+                        android:id="@+id/scrollView1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" >
+
+                        <TableLayout
+                            android:id="@+id/DictionaryTableLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" >
+                        </TableLayout>
+                    </ScrollView>
                 </TableLayout>
             </FrameLayout>
         </LinearLayout>
