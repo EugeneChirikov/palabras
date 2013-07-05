@@ -221,4 +221,21 @@ public class DataSource {
 			inDB = true;
 		return inDB;
 	}
+	
+	 public List<String> getAllDictionaries() {
+		    List<String> dictionaries = new ArrayList<String>();
+
+		    Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
+		        allDictionariesColumns, null, null, null, null, null);
+
+		    cursor.moveToFirst();
+		    while (!cursor.isAfterLast()) {
+		      String dictName = cursor.getString(1);
+		      dictionaries.add(dictName);
+		      cursor.moveToNext();
+		    }
+		    // Make sure to close the cursor
+		    cursor.close();
+		    return dictionaries;
+		  }
 }

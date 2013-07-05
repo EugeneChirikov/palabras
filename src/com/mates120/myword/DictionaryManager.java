@@ -78,4 +78,11 @@ public class DictionaryManager {
 		dataSource.close();
 		return word;
 	}
+	
+	public List<String> getDictionaries(){
+		dataSource.open();
+		List<String> dicts = dataSource.getAllDictionaries();
+		dataSource.close();
+		return dicts;
+	}
 }

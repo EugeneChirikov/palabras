@@ -6,5 +6,10 @@
     <string name="checkBt">Check</string>
     <string name="enter_word_for_search">Enter word for search</string>
     <string name="no_such_word_in_db">No such word in the dictionary</string>
+    <string name="title_activity_activity_search_setting">ActivitySearchSetting</string>
+    <string name="title_activity_activity_main_tabbed">ActivityMainTabbed</string>
+    <string name="search">SEARCH</string>
+    <string name="settings">SETTINGS</string>
+    <string name="add_dictionary">Add Dictionary</string>
 
 </resources>
