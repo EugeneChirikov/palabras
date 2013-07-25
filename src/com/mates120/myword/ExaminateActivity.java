@@ -12,16 +12,7 @@ public class ExaminateActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_examinate);
-		StarDictParser parser = new StarDictParser();
-		
-		try {
-			System.out.println("Parsing...");
-			parser.parseAll();
-			System.out.println("...Done");
-		} catch (DictionaryParserException e) {
-			// TODO Auto-generated catch block
-//			e.printStackTrace();
-		}
+
 	}
 
 	@Override
