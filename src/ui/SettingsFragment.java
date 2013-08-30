@@ -1,49 +1,38 @@
-package com.mates120.myword;
+package ui;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mates120.myword.DictionaryManager;
+import com.mates120.myword.R;
+import com.mates120.myword.R.layout;
+
 import android.app.Activity;
-import android.app.ListFragment;
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.TextView.OnEditorActionListener;
 
-/**
- * A fragment representing a list of Items.
- * <p />
- * Large screen devices (such as tablets) are supported by replacing the
- * ListView with a GridView.
- * <p />
- * Activities containing this fragment MUST implement the {@link Callbacks}
- * interface.
- */
-public class SearchFragment extends ListFragment{
+
+public class SettingsFragment extends ListFragment implements
+		AbsListView.OnItemClickListener {
 	
 	private DictionaryManager dictionaryManager;
-	private EditText editText;
-	
+
 	// TODO: Rename parameter arguments, choose names that match
 	// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-	private static final String ARG_PARAM1 = "param1";
-	private static final String ARG_PARAM2 = "param2";
+	public static final String ARG_SECTION_NUMBER = "param1";
 
 	// TODO: Rename and change types of parameters
 	private String mParam1;
-	private String mParam2;
 
-	private OnFragmentInteractionListener mListener;
+	private OnSettingsFragmentInteractionListener mListener;
 
 	/**
 	 * The fragment's ListView/GridView.
@@ -57,11 +46,10 @@ public class SearchFragment extends ListFragment{
 	private ListAdapter mAdapter;
 
 	// TODO: Rename and change types of parameters
-	public static SearchFragment newInstance(String param1, String param2) {
-		SearchFragment fragment = new SearchFragment();
+	public static SettingsFragment newInstance(String param1, String param2) {
+		SettingsFragment fragment = new SettingsFragment();
 		Bundle args = new Bundle();
-		args.putString(ARG_PARAM1, param1);
-		args.putString(ARG_PARAM2, param2);
+		args.putString(ARG_SECTION_NUMBER, param1);
 		fragment.setArguments(args);
 		return fragment;
 	}
@@ -70,7 +58,7 @@ public class SearchFragment extends ListFragment{
 	 * Mandatory empty constructor for the fragment manager to instantiate the
 	 * fragment (e.g. upon screen orientation changes).
 	 */
-	public SearchFragment() {
+	public SettingsFragment() {
 	}
 
 	@Override
@@ -78,48 +66,29 @@ public class SearchFragment extends ListFragment{
 		super.onCreate(savedInstanceState);
 
 		if (getArguments() != null) {
-			mParam1 = getArguments().getString(ARG_PARAM1);
-			mParam2 = getArguments().getString(ARG_PARAM2);
+			mParam1 = getArguments().getString(ARG_SECTION_NUMBER);
 		}
-
-		List<Value> valuesToShow = new ArrayList<Value>();
+		
 		dictionaryManager = new DictionaryManager(this.getActivity());
-		editText = (EditText) this.getView().findViewById(R.id.editTextSearch);
-		mAdapter = new ArrayAdapter<Value>(getActivity(),
-		        android.R.layout.simple_list_item_1, valuesToShow);
-		setListAdapter(mAdapter);
-		editText.setOnEditorActionListener(new OnEditorActionListener() {
-		    @Override
-		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
-		    	@SuppressWarnings("unchecked")
-		    	ArrayAdapter<Value> adapter = (ArrayAdapter<Value>) getListAdapter();
-		    	adapter.clear();
-		        Word word = null;
-		        boolean handled = false;
-		        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-		            word = dictionaryManager.getWord(editText.getText().toString());
-		            if(word != null)
-		            	for(int i = 0; i < word.getValues().size(); i++)
-		            		adapter.add(word.getValue(i));
-		            		
-		            else
-		            	Toast.makeText(getActivity(), R.string.no_such_word_in_db, Toast.LENGTH_LONG).show();
-		            handled = true;
-		        }
-		        adapter.notifyDataSetChanged();
-		        return handled;
-		    }
-		});
+		List<String> dictNames = dictionaryManager.getDictionaries();
+		mAdapter = new ArrayAdapter<String>(getActivity(),
+				android.R.layout.simple_list_item_1, android.R.id.text1,
+				dictNames);
+		
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_item, container, false);
+		View view = inflater.inflate(R.layout.fragment_settings, container,
+				false);
 
 		// Set the adapter
 		mListView = (AbsListView) view.findViewById(android.R.id.list);
 		((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
+
+		// Set OnItemClickListener so we can be notified on item clicks
+		mListView.setOnItemClickListener(this);
 
 		return view;
 	}
@@ -128,7 +97,7 @@ public class SearchFragment extends ListFragment{
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		try {
-			mListener = (OnFragmentInteractionListener) activity;
+			mListener = (OnSettingsFragmentInteractionListener) activity;
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString()
 					+ " must implement OnFragmentInteractionListener");
@@ -139,6 +108,17 @@ public class SearchFragment extends ListFragment{
 	public void onDetach() {
 		super.onDetach();
 		mListener = null;
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		if (null != mListener) {
+			// Notify the active callbacks interface (the activity, if the
+			// fragment is attached to one) that an item has been selected.
+			//mListener
+			//		.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
+		}
 	}
 
 	/**
@@ -163,7 +143,7 @@ public class SearchFragment extends ListFragment{
 	 * "http://developer.android.com/training/basics/fragments/communicating.html"
 	 * >Communicating with Other Fragments</a> for more information.
 	 */
-	public interface OnFragmentInteractionListener {
+	public interface OnSettingsFragmentInteractionListener {
 		// TODO: Update argument type and name
 		public void onFragmentInteraction(String id);
 	}

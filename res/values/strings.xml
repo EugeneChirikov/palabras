@@ -11,5 +11,7 @@
     <string name="search">SEARCH</string>
     <string name="settings">SETTINGS</string>
     <string name="add_dictionary">Add Dictionary</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="dict_name">Dictionary name</string>
 
 </resources>

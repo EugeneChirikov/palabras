@@ -10,6 +10,7 @@ public class Dictionary {
 	public Dictionary(String name){
 		this.name = name;
 		words = new ArrayList<SourceWord>();
+		boolean searchIn = true;
 	}
 	
 	public void addWord(String word_source, List<String> valuesInString){
