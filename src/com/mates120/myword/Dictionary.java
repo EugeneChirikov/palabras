@@ -6,11 +6,12 @@ import java.util.List;
 public class Dictionary {
 	private String name;
 	private List<SourceWord> words;
+	private boolean searchIn;
 	
 	public Dictionary(String name){
 		this.name = name;
 		words = new ArrayList<SourceWord>();
-		boolean searchIn = true;
+		searchIn = true;
 	}
 	
 	public void addWord(String word_source, List<String> valuesInString){
@@ -27,5 +28,13 @@ public class Dictionary {
 	
 	public SourceWord getWord(int index){
 		return words.get(index);
+	}
+	
+	public boolean isSearchIn(){
+		return this.searchIn;
+	}
+	
+	public void setSearchIn(boolean searchIn){
+		this.searchIn = searchIn;
 	}
 }

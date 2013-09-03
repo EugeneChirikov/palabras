@@ -1,4 +1,4 @@
-package ui;
+package com.mates120.myword.ui;
 
 import java.util.ArrayList;
 import java.util.List;

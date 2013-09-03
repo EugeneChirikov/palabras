@@ -1,12 +1,12 @@
-package ui;
+package com.mates120.myword.ui;
 
-import ui.SearchFragment.OnSearchFragmentInteractionListener;
-import ui.SettingsFragment.OnSettingsFragmentInteractionListener;
 
 import com.mates120.myword.R;
 import com.mates120.myword.R.id;
 import com.mates120.myword.R.layout;
 import com.mates120.myword.R.menu;
+import com.mates120.myword.ui.SearchFragment.OnSearchFragmentInteractionListener;
+import com.mates120.myword.ui.SettingsFragment.OnSettingsFragmentInteractionListener;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;

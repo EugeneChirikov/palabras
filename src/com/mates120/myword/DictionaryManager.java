@@ -5,6 +5,7 @@ import java.util.List;
 import android.content.Context;
 
 public class DictionaryManager {
+	
 	private DataSource dataSource;
 	
 	public DictionaryManager(Context context){

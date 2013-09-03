@@ -1,11 +1,10 @@
-package ui;
+package com.mates120.myword.ui;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.mates120.myword.DictionaryManager;
 import com.mates120.myword.R;
-import com.mates120.myword.R.layout;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -43,7 +42,7 @@ public class SettingsFragment extends ListFragment implements
 	 * The Adapter which will be used to populate the ListView/GridView with
 	 * Views.
 	 */
-	private ListAdapter mAdapter;
+	private DictionaryArrayAdapter mAdapter;
 
 	// TODO: Rename and change types of parameters
 	public static SettingsFragment newInstance(String param1, String param2) {
@@ -71,9 +70,8 @@ public class SettingsFragment extends ListFragment implements
 		
 		dictionaryManager = new DictionaryManager(this.getActivity());
 		List<String> dictNames = dictionaryManager.getDictionaries();
-		mAdapter = new ArrayAdapter<String>(getActivity(),
-				android.R.layout.simple_list_item_1, android.R.id.text1,
-				dictNames);
+		mAdapter = new DictionaryArrayAdapter(getActivity(),
+				android.R.id.list, dictNames);
 		
 	}
 

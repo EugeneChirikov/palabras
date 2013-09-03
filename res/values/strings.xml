@@ -13,5 +13,7 @@
     <string name="add_dictionary">Add Dictionary</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="dict_name">Dictionary name</string>
+    <string name="dictionaries_upper">DICTIONARIES</string>
+    <string name="style_upper">STYLE</string>
 
 </resources>
