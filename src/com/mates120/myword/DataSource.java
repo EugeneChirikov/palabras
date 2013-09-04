@@ -26,7 +26,7 @@ public class DataSource {
 			DatabaseHelper.COL_LINKS_VALUE};
 	
 	private String[] allDictionariesColumns = {DatabaseHelper.COL_DICTIONARIES_ID,
-			DatabaseHelper.COL_DICTIONARIES_NAME};
+			DatabaseHelper.COL_DICTIONARIES_NAME, DatabaseHelper.COL_DICTIONARIES_ISACT};
 	
 	public DataSource(Context context){
 		dbHelper = new DatabaseHelper(context);
@@ -175,6 +175,7 @@ public class DataSource {
 	public long insertDictionary(String name){
 		ContentValues values = new ContentValues();
 		values.put(DatabaseHelper.COL_DICTIONARIES_NAME, name);
+		values.put(DatabaseHelper.COL_DICTIONARIES_ISACT, 1);
 		return database.insert(DatabaseHelper.TABLE_DICTIONARIES, null, values);
 	}
 	
@@ -222,20 +223,30 @@ public class DataSource {
 		return inDB;
 	}
 	
-	 public List<String> getAllDictionaries() {
-		    List<String> dictionaries = new ArrayList<String>();
+	 public List<Dictionary> getAllDictionaries() {
+		    List<Dictionary> dictionaries = new ArrayList<Dictionary>();
 
 		    Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
 		        allDictionariesColumns, null, null, null, null, null);
 
 		    cursor.moveToFirst();
 		    while (!cursor.isAfterLast()) {
-		      String dictName = cursor.getString(1);
-		      dictionaries.add(dictName);
-		      cursor.moveToNext();
+		    	Dictionary currentDict = 
+		    			new Dictionary(cursor.getString(1), cursor.getInt(2));
+		    	dictionaries.add(currentDict);
+		    	cursor.moveToNext();
 		    }
 		    // Make sure to close the cursor
 		    cursor.close();
 		    return dictionaries;
 		  }
+	 
+	 public long setSearchInDict(String name, boolean searchIn){
+		 ContentValues values = new ContentValues();
+		 int value = 0;
+		 if (searchIn) value = 1;
+		 values.put(DatabaseHelper.COL_DICTIONARIES_ISACT, value);
+		 return database.update(DatabaseHelper.TABLE_DICTIONARIES, values,
+				 DatabaseHelper.COL_DICTIONARIES_NAME + " = ?", new String[]{name});
+	 }
 }

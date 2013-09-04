@@ -25,6 +25,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	public static final String TABLE_DICTIONARIES = "dictionaries_table";
 	public static final String COL_DICTIONARIES_ID = "_id";
 	public static final String COL_DICTIONARIES_NAME = "dictionary";
+	public static final String COL_DICTIONARIES_ISACT = "search_in";
 	
 	private static final String DATABASE_NAME = "myword.db";
 	private static final int DATABASE_VERSION = 1;
@@ -58,7 +59,8 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	private static final String DATABASE_CREATE_DICTIONARIES = "create table "
 			+ TABLE_DICTIONARIES + " (" + COL_DICTIONARIES_ID
 			+ " integer primary key autoincrement, "
-			+ COL_DICTIONARIES_NAME + " text not null unique"
+			+ COL_DICTIONARIES_NAME + " text not null unique, "
+			+ COL_DICTIONARIES_ISACT + " integer not null"
 			+ ");";
 	
 	public DatabaseHelper(Context context) {

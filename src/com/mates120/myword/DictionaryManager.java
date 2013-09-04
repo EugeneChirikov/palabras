@@ -80,10 +80,16 @@ public class DictionaryManager {
 		return word;
 	}
 	
-	public List<String> getDictionaries(){
+	public List<Dictionary> getDictionaries(){
 		dataSource.open();
-		List<String> dicts = dataSource.getAllDictionaries();
+		List<Dictionary> dicts = dataSource.getAllDictionaries();
 		dataSource.close();
 		return dicts;
+	}
+	
+	public void setSearchInDict(String dictName, boolean searchIn){
+		dataSource.open();
+		dataSource.setSearchInDict(dictName, searchIn);
+		dataSource.close();
 	}
 }

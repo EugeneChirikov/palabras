@@ -3,6 +3,7 @@ package com.mates120.myword.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mates120.myword.Dictionary;
 import com.mates120.myword.DictionaryManager;
 import com.mates120.myword.R;
 
@@ -69,9 +70,9 @@ public class SettingsFragment extends ListFragment implements
 		}
 		
 		dictionaryManager = new DictionaryManager(this.getActivity());
-		List<String> dictNames = dictionaryManager.getDictionaries();
+		List<Dictionary> dicts = dictionaryManager.getDictionaries();
 		mAdapter = new DictionaryArrayAdapter(getActivity(),
-				android.R.id.list, dictNames);
+				android.R.id.list, dicts);
 		
 	}
 

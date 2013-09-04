@@ -2,9 +2,6 @@ package com.mates120.myword.ui;
 
 
 import com.mates120.myword.R;
-import com.mates120.myword.R.id;
-import com.mates120.myword.R.layout;
-import com.mates120.myword.R.menu;
 import com.mates120.myword.ui.SearchFragment.OnSearchFragmentInteractionListener;
 import com.mates120.myword.ui.SettingsFragment.OnSettingsFragmentInteractionListener;
 

@@ -14,6 +14,14 @@ public class Dictionary {
 		searchIn = true;
 	}
 	
+	public Dictionary(String name, int searchIn){
+		this.name = name;
+		if (searchIn == 1)
+			this.searchIn = true;
+		else
+			this.searchIn = false;
+	}
+	
 	public void addWord(String word_source, List<String> valuesInString){
 		this.words.add(new SourceWord(word_source, valuesInString));
 	}
