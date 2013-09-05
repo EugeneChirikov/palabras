@@ -9,17 +9,16 @@ public class Word {
 	private int rating;
 	private int searchCount;
 	private List<Value> values;
-	
-	public Word(){
-		
+
+	public Word(){	
 	}
-	
+
 	public Word(String source, List<String> values, String dict_name){
 		this.source = source;
 		this.values = new ArrayList<Value>();
 		this.setValues(values, dict_name);
 	}
-	
+
 	public Word(String source){
 		this.id = 0;
 		this.source = source;

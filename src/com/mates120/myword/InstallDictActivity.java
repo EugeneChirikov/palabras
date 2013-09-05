@@ -30,14 +30,7 @@ public class InstallDictActivity extends Activity {
 		
 		String dictType = "StarDict"; // assume this we can get with Intent
 		RawDictionary rawDictionary = obtainDictionaryFiles(dictType);
-		Dictionary dictionary = extractDictionaryData(rawDictionary);
-	}
-
-	private Dictionary extractDictionaryData(RawDictionary rawDictionary)
-	{
-		DictionaryParser parser = new DictionaryParser();
-		Dictionary dictionary = parser.parseAll(rawDictionary);
-		return dictionary;
+		Dictionary dictionary = rawDictionary.parseAll();
 	}
 
 	private RawDictionary obtainDictionaryFiles(String dictType)
@@ -48,11 +41,11 @@ public class InstallDictActivity extends Activity {
 			try
 			{
 				InputStream ifoFile = obtainFileFromProvider("ifo");
-				readFileStream2(ifoFile);
+//				readFileStream2(ifoFile);
 				InputStream idxFile = obtainFileFromProvider("idx");
-				readFileStream2(idxFile);
+//				readFileStream2(idxFile);
 				InputStream dictFile = obtainFileFromProvider("dict");
-				readFileStream2(dictFile);
+//				readFileStream2(dictFile);
 				rawDict = new RawStarDictDictionary(ifoFile, idxFile, dictFile);
 			}
 			catch (Exception e)
