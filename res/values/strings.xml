@@ -15,5 +15,7 @@
     <string name="dict_name">Dictionary name</string>
     <string name="dictionaries_upper">DICTIONARIES</string>
     <string name="style_upper">STYLE</string>
+    <string name="word_text">Word text</string>
+    <string name="value_text">Value text</string>
 
 </resources>

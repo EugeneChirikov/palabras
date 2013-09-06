@@ -22,4 +22,6 @@ public class ResultArrayAdapter extends ArrayAdapter<Word>{
 		public TextView value;
 		public TextView dictionary;
 	}
+	
+	
 }
