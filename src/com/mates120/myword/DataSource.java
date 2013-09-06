@@ -236,7 +236,6 @@ public class DataSource {
 		    	dictionaries.add(currentDict);
 		    	cursor.moveToNext();
 		    }
-		    // Make sure to close the cursor
 		    cursor.close();
 		    return dictionaries;
 		  }

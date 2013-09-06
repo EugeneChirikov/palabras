@@ -13,10 +13,13 @@ import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 
@@ -44,6 +47,7 @@ public class SettingsFragment extends ListFragment implements
 	 * Views.
 	 */
 	private DictionaryArrayAdapter mAdapter;
+	//private DictionaryArrayAdapter mAdapter;
 
 	// TODO: Rename and change types of parameters
 	public static SettingsFragment newInstance(String param1, String param2) {
@@ -71,6 +75,8 @@ public class SettingsFragment extends ListFragment implements
 		
 		dictionaryManager = new DictionaryManager(this.getActivity());
 		List<Dictionary> dicts = dictionaryManager.getDictionaries();
+//		mAdapter = new DictionaryArrayAdapter (
+//				getActivity(), android.R.layout.simple_list_item_multiple_choice, dicts);
 		mAdapter = new DictionaryArrayAdapter(getActivity(),
 				android.R.id.list, dicts);
 		
@@ -85,6 +91,7 @@ public class SettingsFragment extends ListFragment implements
 		// Set the adapter
 		mListView = (AbsListView) view.findViewById(android.R.id.list);
 		((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
+		mListView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
 
 		// Set OnItemClickListener so we can be notified on item clicks
 		mListView.setOnItemClickListener(this);
@@ -112,12 +119,15 @@ public class SettingsFragment extends ListFragment implements
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		if (null != mListener) {
-			// Notify the active callbacks interface (the activity, if the
-			// fragment is attached to one) that an item has been selected.
-			//mListener
-			//		.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
+		CheckedTextView textView = (CheckedTextView) view;
+		if (textView.isChecked()){
+			dictionaryManager.setSearchInDict(
+					textView.getText().toString(), false);
+		}else{
+			dictionaryManager.setSearchInDict(
+					textView.getText().toString(), true);
 		}
+		textView.setChecked(!textView.isChecked());
 	}
 
 	/**
