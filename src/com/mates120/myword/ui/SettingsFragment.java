@@ -1,6 +1,5 @@
 package com.mates120.myword.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.mates120.myword.Dictionary;
@@ -10,16 +9,15 @@ import com.mates120.myword.R;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 
@@ -27,6 +25,7 @@ public class SettingsFragment extends ListFragment implements
 		AbsListView.OnItemClickListener {
 	
 	private DictionaryManager dictionaryManager;
+	private List<Dictionary> dicts;
 
 	// TODO: Rename parameter arguments, choose names that match
 	// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -47,7 +46,6 @@ public class SettingsFragment extends ListFragment implements
 	 * Views.
 	 */
 	private DictionaryArrayAdapter mAdapter;
-	//private DictionaryArrayAdapter mAdapter;
 
 	// TODO: Rename and change types of parameters
 	public static SettingsFragment newInstance(String param1, String param2) {
@@ -74,11 +72,9 @@ public class SettingsFragment extends ListFragment implements
 		}
 		
 		dictionaryManager = new DictionaryManager(this.getActivity());
-		List<Dictionary> dicts = dictionaryManager.getDictionaries();
-//		mAdapter = new DictionaryArrayAdapter (
-//				getActivity(), android.R.layout.simple_list_item_multiple_choice, dicts);
+		dicts = dictionaryManager.getDictionaries();
 		mAdapter = new DictionaryArrayAdapter(getActivity(),
-				android.R.id.list, dicts);
+				android.R.id.list, dicts, dictionaryManager);
 		
 	}
 
@@ -93,7 +89,15 @@ public class SettingsFragment extends ListFragment implements
 		((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
 		mListView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
 
-		// Set OnItemClickListener so we can be notified on item clicks
+		int i = 0;
+		for (Dictionary item : dicts) {
+		    // Check a field/condition in the object
+		    if (item.isSearchIn()) {
+		        mListView.setItemChecked(i,true);
+		    }
+		    i++;
+		}
+		
 		mListView.setOnItemClickListener(this);
 
 		return view;
@@ -119,14 +123,19 @@ public class SettingsFragment extends ListFragment implements
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
+		Log.i("ARG2: ", String.valueOf(position));
+		Log.i("ARG3: ", String.valueOf(id));
 		CheckedTextView textView = (CheckedTextView) view;
 		if (textView.isChecked()){
 			dictionaryManager.setSearchInDict(
 					textView.getText().toString(), false);
+			Log.i("SET DICTIONARY", "SET FALSE");
 		}else{
 			dictionaryManager.setSearchInDict(
 					textView.getText().toString(), true);
+			Log.i("SET DICTIONARY", "SET TRUE");
 		}
+		Log.i("SET DICTIONARY", "SET TRUE");
 		textView.setChecked(!textView.isChecked());
 	}
 

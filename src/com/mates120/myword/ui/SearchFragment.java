@@ -49,16 +49,6 @@ public class SearchFragment extends ListFragment{
 
 	private OnSearchFragmentInteractionListener mListener;
 
-	/**
-	 * The fragment's ListView/GridView.
-	 */
-	private AbsListView mListView;
-
-	/**
-	 * The Adapter which will be used to populate the ListView/GridView with
-	 * Views.
-	 */
-	private ListAdapter mAdapter;
 
 	// TODO: Rename and change types of parameters
 	public static SearchFragment newInstance(String param1, String param2) {
@@ -67,13 +57,6 @@ public class SearchFragment extends ListFragment{
 		args.putString(ARG_SECTION_NUMBER, param1);
 		fragment.setArguments(args);
 		return fragment;
-	}
-
-	/**
-	 * Mandatory empty constructor for the fragment manager to instantiate the
-	 * fragment (e.g. upon screen orientation changes).
-	 */
-	public SearchFragment() {
 	}
 
 	@Override
@@ -90,38 +73,39 @@ public class SearchFragment extends ListFragment{
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_search_list, container, false);
 		
-		List<Value> valuesToShow = new ArrayList<Value>();
 		dictionaryManager = new DictionaryManager(this.getActivity());
 		editText = (EditText) view.findViewById(R.id.editTextSearch);
-		mAdapter = new ArrayAdapter<Value>(getActivity(),
-		        android.R.layout.simple_list_item_1, valuesToShow);
-		setListAdapter(mAdapter);
 		editText.setOnEditorActionListener(new OnEditorActionListener() {
 		    @Override
 		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
-		    	@SuppressWarnings("unchecked")
-		    	ArrayAdapter<Value> adapter = (ArrayAdapter<Value>) getListAdapter();
-		    	adapter.clear();
-		        Word word = null;
+		    	ResultArrayAdapter adapter;
+		    	List<Value> values = null;
+		    	Word word = null;
 		        boolean handled = false;
 		        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
 		            word = dictionaryManager.getWord(editText.getText().toString());
-		            if(word != null)
+		            if(word != null){
+		            	values = new ArrayList<Value>();
 		            	for(int i = 0; i < word.getValues().size(); i++)
-		            		adapter.add(word.getValue(i));
-		            		
-		            else
-		            	Toast.makeText(getActivity(), R.string.no_such_word_in_db, Toast.LENGTH_LONG).show();
+		            		values.add(word.getValue(i));
+		            }
 		            handled = true;
 		        }
-		        adapter.notifyDataSetChanged();
+		        if (word != null){
+		        	adapter = new ResultArrayAdapter(getActivity(),
+		        			android.R.id.list, values, word.getSource());
+		        }
+		        else{
+		        	List<Value> emptyValue = new ArrayList<Value>();
+		        	emptyValue.add(new Value("",""));
+		        	adapter = new ResultArrayAdapter(getActivity(),
+		        			android.R.id.list, emptyValue,
+		        			"No such word in the dictionary.");
+		        }
+		        setListAdapter(adapter);
 		        return handled;
 		    }
 		});
-
-		// Set the adapter
-		mListView = (AbsListView) view.findViewById(android.R.id.list);
-		((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
 
 		return view;
 	}
@@ -141,19 +125,6 @@ public class SearchFragment extends ListFragment{
 	public void onDetach() {
 		super.onDetach();
 		mListener = null;
-	}
-
-	/**
-	 * The default content for this Fragment has a TextView that is shown when
-	 * the list is empty. If you would like to change the text, call this method
-	 * to supply the text it should use.
-	 */
-	public void setEmptyText(CharSequence emptyText) {
-		View emptyView = mListView.getEmptyView();
-
-		if (emptyText instanceof TextView) {
-			((TextView) emptyView).setText(emptyText);
-		}
 	}
 
 	/**

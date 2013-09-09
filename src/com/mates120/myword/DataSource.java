@@ -246,6 +246,6 @@ public class DataSource {
 		 if (searchIn) value = 1;
 		 values.put(DatabaseHelper.COL_DICTIONARIES_ISACT, value);
 		 return database.update(DatabaseHelper.TABLE_DICTIONARIES, values,
-				 DatabaseHelper.COL_DICTIONARIES_NAME + " = ?", new String[]{name});
+				 DatabaseHelper.COL_DICTIONARIES_NAME + "=?", new String[]{name});
 	 }
 }
