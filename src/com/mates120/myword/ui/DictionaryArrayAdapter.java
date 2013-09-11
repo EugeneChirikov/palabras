@@ -30,7 +30,7 @@ public class DictionaryArrayAdapter extends ArrayAdapter<Dictionary>{
 		this.dictionaryManager = dm;
 	}
 	
-	public View getView(int position, View convertView, ViewGroup parent){
+	public CheckedTextView getView(int position, View convertView, ViewGroup parent){
 		CheckedTextView dictionary = null;
 		Dictionary dict = getItem(position);
 		
@@ -44,7 +44,6 @@ public class DictionaryArrayAdapter extends ArrayAdapter<Dictionary>{
 			dictionary = (CheckedTextView) convertView;
 		
 		dictionary.setText(dict.getName());
-		//dictionary.setChecked(dict.isSearchIn());
 		Log.i("SEARCH IN", dict.isSearchIn() + " " + dictionary.isChecked());
 		dictionary.setOnClickListener(new OnClickListener(){
 
@@ -77,7 +76,7 @@ public class DictionaryArrayAdapter extends ArrayAdapter<Dictionary>{
 			}
 			
 		});
-		return convertView;
+		return (CheckedTextView)convertView;
 	}
 	//http://stackoverflow.com/questions/16291459/populate-list-of-custom-view-using-listfragment
 	

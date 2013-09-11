@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.CheckedTextView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
@@ -88,7 +87,13 @@ public class SettingsFragment extends ListFragment implements
 		mListView = (AbsListView) view.findViewById(android.R.id.list);
 		((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
 		mListView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
+		checkDicts();
+		mListView.setOnItemClickListener(this);
 
+		return view;
+	}
+	
+	private void checkDicts(){
 		int i = 0;
 		for (Dictionary item : dicts) {
 		    // Check a field/condition in the object
@@ -97,10 +102,6 @@ public class SettingsFragment extends ListFragment implements
 		    }
 		    i++;
 		}
-		
-		mListView.setOnItemClickListener(this);
-
-		return view;
 	}
 
 	@Override
@@ -137,19 +138,6 @@ public class SettingsFragment extends ListFragment implements
 		}
 		Log.i("SET DICTIONARY", "SET TRUE");
 		textView.setChecked(!textView.isChecked());
-	}
-
-	/**
-	 * The default content for this Fragment has a TextView that is shown when
-	 * the list is empty. If you would like to change the text, call this method
-	 * to supply the text it should use.
-	 */
-	public void setEmptyText(CharSequence emptyText) {
-		View emptyView = mListView.getEmptyView();
-
-		if (emptyText instanceof TextView) {
-			((TextView) emptyView).setText(emptyText);
-		}
 	}
 
 	/**
