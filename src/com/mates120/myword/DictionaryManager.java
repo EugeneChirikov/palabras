@@ -3,7 +3,6 @@ package com.mates120.myword;
 import java.util.List;
 
 import android.content.Context;
-import android.util.Log;
 
 public class DictionaryManager {
 	
@@ -90,7 +89,7 @@ public class DictionaryManager {
 	
 	public void setSearchInDict(String dictName, boolean searchIn){
 		dataSource.open();
-		Log.i("SETSEARCH IN DICT", String.valueOf(dataSource.setSearchInDict(dictName, searchIn)));
+		dataSource.setSearchInDict(dictName, searchIn);
 		dataSource.close();
 	}
 }

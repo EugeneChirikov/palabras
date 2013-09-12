@@ -3,7 +3,6 @@ package com.mates120.myword.ui;
 
 import com.mates120.myword.R;
 import com.mates120.myword.ui.SearchFragment.OnSearchFragmentInteractionListener;
-import com.mates120.myword.ui.SettingsFragment.OnSettingsFragmentInteractionListener;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
@@ -14,11 +13,10 @@ import android.support.v4.view.ViewPager;
 import android.view.Menu;
 
 public class MainActivity extends FragmentActivity 
-	implements ActionBar.TabListener, 
-		OnSearchFragmentInteractionListener, OnSettingsFragmentInteractionListener {
+	implements ActionBar.TabListener, OnSearchFragmentInteractionListener{
 	
-	SectionsPagerAdapter mSectionsPagerAdapter;
-	ViewPager mViewPager;
+	private SectionsPagerAdapter mSectionsPagerAdapter;
+	private ViewPager mViewPager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
