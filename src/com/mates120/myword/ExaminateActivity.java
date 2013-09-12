@@ -1,7 +1,5 @@
 package com.mates120.myword;
 
-import com.mates120.myword.Exceptions.DictionaryParserException;
-
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;

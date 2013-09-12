@@ -13,10 +13,10 @@ public class Word {
 	public Word(){	
 	}
 
-	public Word(String source, List<String> values, String dict_name){
+	public Word(String source, List<Value> values){
 		this.source = source;
 		this.values = new ArrayList<Value>();
-		this.setValues(values, dict_name);
+		this.setValues(values);
 	}
 
 	public Word(String source){
@@ -63,18 +63,35 @@ public class Word {
 		this.values = values;
 	}
 	
-	public void setValues(List<String> values, String dict_name){
-		for(int i = 0; i < values.size(); i ++){
-			this.values.add(new Value(values.get(i), dict_name));
-		}
-	}
-	
 	public List<Value> getValues(){
 		return this.values;
+	}
+	
+	public Value getValue(int index){
+		return this.values.get(index);
 	}
 	
 	@Override
 	public String toString(){
 		return source;
+	}
+	
+	public boolean equals(Word word){
+		boolean isEqual = false;
+		if((this.source.equals(word.getSource())) && 
+				(this.rating == word.getRating()) &&
+				(this.searchCount == word.getSearchCount())) {
+			if((this.values == null)&&(word.getValues() == null)){
+				isEqual = true;}
+			else{
+				for(int i = 0; i < this.values.size();i++)
+					if(!this.values.get(i).getValue().equals(word.getValue(i).getValue())){
+						isEqual = false;
+						break;
+					}else
+						isEqual = true;
+			}
+		}
+		return isEqual;
 	}
 }

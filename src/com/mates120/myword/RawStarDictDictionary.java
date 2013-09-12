@@ -1,6 +1,5 @@
 package com.mates120.myword;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -11,8 +10,10 @@ import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import android.annotation.SuppressLint;
 import com.mates120.myword.Exceptions.EndOfFileException;
 import com.mates120.myword.Exceptions.DictionaryParserException;
 
@@ -39,7 +40,7 @@ public class RawStarDictDictionary extends  RawDictionary
 		{
 			this.paramName= paramName;
 		}
-		
+
 		@Override
 		public String toString()
 		{
@@ -47,98 +48,38 @@ public class RawStarDictDictionary extends  RawDictionary
 		}
 	}
 
-	public InputStream ifoFile;
-	public InputStream idxFile;
-	public InputStream dictFile;
-	int wordcount = -1;
-	int synwordcount = -1;
-	int idxoffsetbits = -1;
-	int idxfilesize = -1;
-	String author = "";
-	String email = "";
-	String website = "";
-	String description = "";
-	String date = "";
-	String sametypesequence = "";
-	String version = "";
+	private InputStream ifoFile;
+	private InputStream idxFile;
+	private InputStream dictFile;
+	private StreamsReader inputStream;
+
+	private int wordcount = -1;
+	private int synwordcount = -1;
+	private int idxoffsetbits = -1;
+	private int idxfilesize = -1;
+	private String author = "";
+	private String email = "";
+	private String website = "";
+	private String description = "";
+	private String date = "";
+	private String sametypesequence = "";
+	private String version = "";
 	private final byte WORD_ENDING = 0;
 	
 	private List <StarDictWord> wordsList = new ArrayList<StarDictWord>();
-	
-	public class StarDictWord
-	{
-//		public static boolean extendedOffset;
-		private Word word;
-		private byte [] dataOffset;
-		private byte [] dataSize;
-		
-		public StarDictWord(String wordString)
-		{
-			word = new Word(wordString);
-		}
-		
-		public void addDataOffset(byte [] dataOffset)
-		{
-			this.dataOffset = dataOffset;
-		}
-		
-		public void addDataSize(byte [] dataSize)
-		{
-			this.dataSize = dataSize;
-		}
-		
-		public String getWordString()
-		{
-			return word.getSource();
-		}
-	}
-	
-	public class WordBuffer
-	{
-		private final int MAX_WORD_LENGTH = 255;
-		private byte [] wordString;
-		int length;
-		
-		public WordBuffer()
-		{
-			wordString = new byte [MAX_WORD_LENGTH];
-			length = 0;
-		}
-		
-		public void addByte(byte newByte) throws DictionaryParserException
-		{
-			if (length >= MAX_WORD_LENGTH)
-				throw new DictionaryParserException("Word is too long. Dictionary is invalid.");
-			wordString[length] = newByte;
-			length++;
-		}
-		
-		public String getWord() throws CharacterCodingException
-		{
-			ByteBuffer wrappedBuffer = ByteBuffer.wrap(wordString, 0, length);
-			return byteBufferToString(wrappedBuffer);
-		}
-		
-		private String byteBufferToString(ByteBuffer byteBuffer) throws CharacterCodingException
-		{
-			Charset charset = Charset.forName("UTF-8");
-			CharsetDecoder decoder = charset.newDecoder();
-			return decoder.decode(byteBuffer).toString();
-		}
-	}
-	
-	private StarDictWord addWord(String wordString)
-	{
-		StarDictWord word = new StarDictWord(wordString);
-		wordsList.add(word);
-		return word;
-	}
-	
+
 	public RawStarDictDictionary(InputStream ifoFile, InputStream idxFile, InputStream dictFile)
 	{
 		this.ifoFile = ifoFile;
 		this.idxFile = idxFile;
 		this.dictFile = dictFile;
+	}
+
+	private StarDictWord addWord(String wordString)
+	{
+		StarDictWord word = new StarDictWord(wordString);
+		wordsList.add(word);
+		return word;
 	}
 	
 	public Dictionary parseAll()
@@ -147,6 +88,7 @@ public class RawStarDictDictionary extends  RawDictionary
 		try {
 			parseIFO();
 //			checkParsedIFO();
+			TimeUnit.SECONDS.sleep(10);
 			parseIDX();
 			checkParsedIDX();
 		} catch (Exception e) 
@@ -177,10 +119,10 @@ public class RawStarDictDictionary extends  RawDictionary
 	}
 	
 	private void parseIFO() throws IOException, DictionaryParserException
-	{		
-		String ifoData = readEverythingStringFrom(ifoFile);
-//		int regexpFlags = 0;
-//		System.out.println(ifoData);
+	{
+		initStreamsReader(ifoFile);
+		String ifoData = readEverythingString();
+
 		Pattern regexpPattern = Pattern.compile("([a-z]+)=([0-9.]+|(?<=bookname=|description=|sametypesequence=).+)");
 		Matcher regexpMatcher = regexpPattern.matcher(ifoData);
 		while (regexpMatcher.find())
@@ -233,8 +175,25 @@ public class RawStarDictDictionary extends  RawDictionary
 					break;
 			}
 		}
+		ifoFile.close();
 	}
 
+	private void initStreamsReader(InputStream myStream)
+	{
+		inputStream = new StreamsReader(myStream);
+	}
+	
+	private void initStreamsReaderBuffered(InputStream myStream)
+	{
+		initStreamsReader(myStream);
+		inputStream.initBufferedReading();
+	}
+	
+	private String readEverythingString() throws IOException
+	{
+		return inputStream.readEverythingString();
+	}
+	
 	private IFO_PARAMETERS identifyIFOParam(String paramName)
 	{
 		for (IFO_PARAMETERS p : IFO_PARAMETERS.values())
@@ -250,6 +209,7 @@ public class RawStarDictDictionary extends  RawDictionary
 	private void parseIDX() throws IOException, DictionaryParserException
 	{
 		setWordsOffsetSize();
+		initStreamsReaderBuffered(idxFile);
 		try
 		{
 			byte newByte;
@@ -258,7 +218,7 @@ public class RawStarDictDictionary extends  RawDictionary
 			byte [] dataSize = new byte [4]; //4 bytes
 			while (true)
 			{
-				newByte = getByteFrom(idxFile);
+				newByte = readByte();
 				if (newByte == WORD_ENDING)
 				{
 					StarDictWord newWord = addWord(wordString.getWord());
@@ -273,14 +233,28 @@ public class RawStarDictDictionary extends  RawDictionary
 					wordString.addByte(newByte);
 				}
 			}
-		} catch (EndOfFileException e) {}
+		}
+		catch (EndOfFileException e)
+		{
+			System.out.println("End of file reached");
+		}
+		finally
+		{
+			System.out.println("Closing stream");
+			idxFile.close();
+		}
+	}
+	
+	private byte readByte() throws EndOfFileException, IOException
+	{
+		return inputStream.getByte();
 	}
 
 	private void readBytesIntoBuffer(byte [] buffer) throws EndOfFileException, IOException
 	{
 		for (int i = 0; i < buffer.length; ++i)
 		{
-			byte newByte = getByteFrom(idxFile);
+			byte newByte = readByte();
 			buffer[i] = newByte;
 		}
 	}
@@ -304,36 +278,7 @@ public class RawStarDictDictionary extends  RawDictionary
 		}
 	}
 	
-	private void parseDICT(DictionaryFile dictFile) throws DictionaryParserException{
-		System.out.println(dictFile.getValidPathToFile());
-	}
-
-	private String readEverythingStringFrom(InputStream fileStream) throws IOException
-	{	
-        byte[] buffer = readEverythingByteFrom(fileStream);
-        String newst = convertToString(buffer);
-        return newst;
-	}
-
-	private byte getByteFrom(InputStream fileStream) throws IOException, EndOfFileException
-	{
-		int readByte = fileStream.read();
-		if (readByte < 0)
-			throw new EndOfFileException();
-		return (byte)readByte;
-	}
-	
-	private byte[] readEverythingByteFrom(InputStream fileStream) throws IOException
-	{
-		int available = 0;
-		available = fileStream.available();
-        byte[] buffer = new byte[available];
-        fileStream.read(buffer);
-        return buffer;
-	}
-
-	private String convertToString(byte[] buffer) throws UnsupportedEncodingException
-	{
-		return new String(buffer, "UTF-8");
+	private void parseDICT() throws DictionaryParserException, IOException{
+		dictFile.close();
 	}
 }
