@@ -2,18 +2,15 @@ package com.mates120.myword.ui;
 
 
 import com.mates120.myword.R;
-import com.mates120.myword.ui.SearchFragment.OnSearchFragmentInteractionListener;
 
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 
-public class MainActivity extends FragmentActivity 
-	implements ActionBar.TabListener, OnSearchFragmentInteractionListener{
+public class MainActivity extends FragmentActivity implements ActionBar.TabListener{
 	
 	private SectionsPagerAdapter mSectionsPagerAdapter;
 	private ViewPager mViewPager;
@@ -76,17 +73,4 @@ public class MainActivity extends FragmentActivity
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-
-	@Override
-	public void onFragmentInteraction(String id) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onFragmentInteraction(Uri uri) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

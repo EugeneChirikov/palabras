@@ -24,6 +24,7 @@ public class DictionaryArrayAdapter extends ArrayAdapter<Dictionary>{
 		this.context = context;
 	}
 	
+	@Override
 	public CheckedTextView getView(int position, View convertView, ViewGroup parent){
 		CheckedTextView dictionary = null;
 		Dictionary dict = getItem(position);
@@ -33,9 +34,8 @@ public class DictionaryArrayAdapter extends ArrayAdapter<Dictionary>{
 		
 		if(convertView == null){
 			convertView = mInflater.inflate(R.layout.dict_item, null);
-			dictionary = (CheckedTextView) convertView;
-		}else
-			dictionary = (CheckedTextView) convertView;
+		}
+		dictionary = (CheckedTextView) convertView;
 		
 		dictionary.setText(dict.getName());
 		dictionary.setChecked(dict.isSearchIn());

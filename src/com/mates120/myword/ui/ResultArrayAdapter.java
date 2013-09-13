@@ -15,17 +15,14 @@ import com.mates120.myword.Value;
 
 public class ResultArrayAdapter extends ArrayAdapter<Value>{
 	private Context context;
-	private String wordSource;
 
 	public ResultArrayAdapter(Context context, 
-			int textViewResourceId, List<Value> values, String wordSource){
+			int textViewResourceId, List<Value> values){
 		super(context, textViewResourceId, values);
 		this.context = context;
-		this.wordSource = wordSource;
 	}
 	
 	private class ViewHolder {
-		public TextView word;
 		public TextView value;
 		public TextView dictionary;
 	}
@@ -40,7 +37,6 @@ public class ResultArrayAdapter extends ArrayAdapter<Value>{
 		if(convertView == null){
 			convertView = mInflater.inflate(R.layout.search_result_item, null);
 			holder = new ViewHolder();
-			holder.word = (TextView) convertView.findViewById(R.id.wordTextView);
 			holder.value = (TextView) convertView.findViewById(R.id.valueTextView);
 			holder.dictionary = (TextView) convertView.findViewById(R.id.dictTextView);
 			
@@ -48,7 +44,6 @@ public class ResultArrayAdapter extends ArrayAdapter<Value>{
 		}else
 			holder = (ViewHolder) convertView.getTag();
 		
-		holder.word.setText(wordSource);
 		holder.value.setText(value.getValue());
 		holder.dictionary.setText(value.getDictionary());
 		return convertView;

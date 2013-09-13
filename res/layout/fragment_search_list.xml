@@ -9,7 +9,7 @@
     tools:context=".SearchFragment" >
 
     <TableRow
-        android:id="@+id/tableRow2"
+        android:id="@+id/tableRow1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
@@ -23,7 +23,37 @@
     </TableRow>
 
     <TableRow
+        android:id="@+id/tableRow2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/resWordTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/word_text"
+            android:paddingLeft="10dip"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    </TableRow>
+
+    <TableRow
         android:id="@+id/tableRow3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <View
+            android:id="@+id/line"
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_marginLeft="@dimen/line_left_right_dim"
+            android:layout_marginRight="@dimen/line_left_right_dim"
+            android:background="@android:color/darker_gray" />
+
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/tableRow4"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1" >
@@ -33,8 +63,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:dividerHeight="3dp"
-			android:showDividers="middle" >
+            android:showDividers="middle" >
         </ListView>
     </TableRow>
-
 </TableLayout>

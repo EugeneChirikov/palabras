@@ -8,15 +8,16 @@ import com.mates120.myword.R;
 import com.mates120.myword.Value;
 import com.mates120.myword.Word;
 
-import android.app.Activity;
-import android.net.Uri;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -34,33 +35,13 @@ public class SearchFragment extends ListFragment{
 	
 	private DictionaryManager dictionaryManager;
 	private EditText editText;
-	
-	// TODO: Rename parameter arguments, choose names that match
-	// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-	static final String ARG_SECTION_NUMBER = "param1";
-
-	// TODO: Rename and change types of parameters
-	private String mParam1;
-
-	private OnSearchFragmentInteractionListener mListener;
-
-
-	// TODO: Rename and change types of parameters
-	public static SearchFragment newInstance(String param1, String param2) {
-		SearchFragment fragment = new SearchFragment();
-		Bundle args = new Bundle();
-		args.putString(ARG_SECTION_NUMBER, param1);
-		fragment.setArguments(args);
-		return fragment;
-	}
+	private TextView wordTextView;
+	private View lineView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		if (getArguments() != null) {
-			mParam1 = getArguments().getString(ARG_SECTION_NUMBER);
-		}
+		dictionaryManager = new DictionaryManager(this.getActivity());
 	}
 
 	@Override
@@ -68,8 +49,11 @@ public class SearchFragment extends ListFragment{
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_search_list, container, false);
 		
-		dictionaryManager = new DictionaryManager(this.getActivity());
 		editText = (EditText) view.findViewById(R.id.editTextSearch);
+		wordTextView = (TextView) view.findViewById(R.id.resWordTextView);
+		lineView = (View) view.findViewById(R.id.line);
+		lineView.setVisibility(View.INVISIBLE);
+		wordTextView.setText("");
 		editText.setOnEditorActionListener(new OnEditorActionListener() {
 		    @Override
 		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
@@ -78,64 +62,44 @@ public class SearchFragment extends ListFragment{
 		    	Word word = null;
 		        boolean handled = false;
 		        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+		        	InputMethodManager inputMM = (InputMethodManager) 
+		        			getActivity().getSystemService(
+		        					Context.INPUT_METHOD_SERVICE);
+	                inputMM.hideSoftInputFromWindow(
+	                		editText.getApplicationWindowToken(), 
+	                			InputMethodManager.HIDE_NOT_ALWAYS);
 		            word = dictionaryManager.getWord(editText.getText().toString());
 		            if(word != null){
+		            	wordTextView.setText(word.getSource());
+		            	lineView.setVisibility(View.VISIBLE);
 		            	values = new ArrayList<Value>();
 		            	for(int i = 0; i < word.getValues().size(); i++)
 		            		values.add(word.getValue(i));
+		            	adapter = new ResultArrayAdapter(getActivity(),
+			        			android.R.id.list, values);
+			        	setListAdapter(adapter);
+			        }else{
+			        	wordTextView.setText("No such word in the dictionary.");
 		            }
 		            handled = true;
 		        }
-		        if (word != null){
-		        	adapter = new ResultArrayAdapter(getActivity(),
-		        			android.R.id.list, values, word.getSource());
-		        }
-		        else{
-		        	List<Value> emptyValue = new ArrayList<Value>();
-		        	emptyValue.add(new Value("",""));
-		        	adapter = new ResultArrayAdapter(getActivity(),
-		        			android.R.id.list, emptyValue,
-		        			"No such word in the dictionary.");
-		        }
-		        setListAdapter(adapter);
+		        editText.getText().clear();
 		        return handled;
 		    }
 		});
+		editText.setOnFocusChangeListener(new OnFocusChangeListener(){
 
+			@Override
+			public void onFocusChange(View arg0, boolean hasFocus) {
+				InputMethodManager inputMM = (InputMethodManager) 
+						getActivity().getSystemService(
+								Context.INPUT_METHOD_SERVICE);
+				inputMM.hideSoftInputFromWindow(
+							editText.getApplicationWindowToken(), 
+                				InputMethodManager.HIDE_NOT_ALWAYS);
+			}
+			
+		});
 		return view;
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		try {
-			mListener = (OnSearchFragmentInteractionListener) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString()
-					+ " must implement OnFragmentInteractionListener");
-		}
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		mListener = null;
-	}
-
-	/**
-	 * This interface must be implemented by activities that contain this
-	 * fragment to allow an interaction in this fragment to be communicated to
-	 * the activity and potentially other fragments contained in that activity.
-	 * <p>
-	 * See the Android Training lesson <a href=
-	 * "http://developer.android.com/training/basics/fragments/communicating.html"
-	 * >Communicating with Other Fragments</a> for more information.
-	 */
-	public interface OnSearchFragmentInteractionListener {
-		// TODO: Update argument type and name
-		public void onFragmentInteraction(String id);
-
-		void onFragmentInteraction(Uri uri);
-	}
-
+	}	
 }
