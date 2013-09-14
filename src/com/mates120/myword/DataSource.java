@@ -110,13 +110,18 @@ public class DataSource {
 	
 	public List<Value> getWordValues(long wordId){
 		List<Value> values = new ArrayList<Value>();
-		Cursor cursor = database.rawQuery("select " + allValuesColumns[0] 
+		Cursor cursor = database.rawQuery("select " + "val_s." + allValuesColumns[0] 
 				+", " + allValuesColumns[1] + ", " + allValuesColumns[2] 
-				+ " from "	+ DatabaseHelper.TABLE_LINKS
-				+ " links inner join " + DatabaseHelper.TABLE_VALUES
-				+ " val_s ON links."+ DatabaseHelper.COL_LINKS_VALUE 
+				+ " from "	+ DatabaseHelper.TABLE_VALUES
+				+ " val_s inner join " + DatabaseHelper.TABLE_LINKS
+				+ " links ON links."+ DatabaseHelper.COL_LINKS_VALUE 
 				+ " = val_s." + DatabaseHelper.COL_VALUES_ID 
-				+ " where " + DatabaseHelper.COL_LINKS_WORD + " = " + wordId, null);
+				+ " inner join " + DatabaseHelper.TABLE_DICTIONARIES
+				+ " dicts ON val_s." + DatabaseHelper.COL_VALUES_DICT_ID
+				+ " = dicts." + DatabaseHelper.COL_DICTIONARIES_ID
+				+ " where " + DatabaseHelper.COL_DICTIONARIES_ISACT
+				+ " = 1 AND "
+				+ DatabaseHelper.COL_LINKS_WORD + " = " + wordId, null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()){
 			Value value = cursorToValue(cursor);
