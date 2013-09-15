@@ -11,6 +11,7 @@ import com.mates120.myword.Word;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +42,7 @@ public class SearchFragment extends ListFragment{
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setRetainInstance(true);
 		dictionaryManager = new DictionaryManager(this.getActivity());
 	}
 
@@ -48,12 +50,17 @@ public class SearchFragment extends ListFragment{
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_search_list, container, false);
-		
 		editText = (EditText) view.findViewById(R.id.editTextSearch);
 		wordTextView = (TextView) view.findViewById(R.id.resWordTextView);
 		lineView = (View) view.findViewById(R.id.line);
-		lineView.setVisibility(View.INVISIBLE);
-		wordTextView.setText("");
+		if(savedInstanceState == null){
+			lineView.setVisibility(View.INVISIBLE);
+			wordTextView.setText("");
+			Log.d("NEW INSTANCE", "TEXTVIEW");
+		}else{
+			wordTextView.setText(savedInstanceState.getCharSequence("textView"));
+			Log.d("OLD INSTANCE", "TEXTVIEW");
+		}
 		editText.setOnEditorActionListener(new OnEditorActionListener() {
 		    @Override
 		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
@@ -101,5 +108,12 @@ public class SearchFragment extends ListFragment{
 			
 		});
 		return view;
-	}	
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putCharSequence("textView", wordTextView.getText());
+	}
+	
 }
