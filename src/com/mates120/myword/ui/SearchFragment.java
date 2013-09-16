@@ -11,7 +11,6 @@ import com.mates120.myword.Word;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,19 +24,15 @@ import android.widget.TextView.OnEditorActionListener;
 
 /**
  * A fragment representing a list of Items.
- * <p />
- * Large screen devices (such as tablets) are supported by replacing the
- * ListView with a GridView.
- * <p />
- * Activities containing this fragment MUST implement the {@link Callbacks}
- * interface.
  */
 public class SearchFragment extends ListFragment{
 	
 	private DictionaryManager dictionaryManager;
 	private EditText editText;
 	private TextView wordTextView;
+	private String wordTextViewValue = "";
 	private View lineView;
+	private int lineViewVisible = View.INVISIBLE;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -53,14 +48,8 @@ public class SearchFragment extends ListFragment{
 		editText = (EditText) view.findViewById(R.id.editTextSearch);
 		wordTextView = (TextView) view.findViewById(R.id.resWordTextView);
 		lineView = (View) view.findViewById(R.id.line);
-		if(savedInstanceState == null){
-			lineView.setVisibility(View.INVISIBLE);
-			wordTextView.setText("");
-			Log.d("NEW INSTANCE", "TEXTVIEW");
-		}else{
-			wordTextView.setText(savedInstanceState.getCharSequence("textView"));
-			Log.d("OLD INSTANCE", "TEXTVIEW");
-		}
+		lineView.setVisibility(lineViewVisible);
+		wordTextView.setText(wordTextViewValue);
 		editText.setOnEditorActionListener(new OnEditorActionListener() {
 		    @Override
 		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
@@ -77,8 +66,11 @@ public class SearchFragment extends ListFragment{
 	                			InputMethodManager.HIDE_NOT_ALWAYS);
 		            word = dictionaryManager.getWord(editText.getText().toString());
 		            if(word != null){
-		            	wordTextView.setText(word.getSource());
-		            	lineView.setVisibility(View.VISIBLE);
+		            	editText.getText().clear();
+		            	wordTextViewValue = word.getSource();
+		            	wordTextView.setText(wordTextViewValue);
+		            	lineViewVisible = View.VISIBLE;
+		            	lineView.setVisibility(lineViewVisible);
 		            	values = new ArrayList<Value>();
 		            	for(int i = 0; i < word.getValues().size(); i++)
 		            		values.add(word.getValue(i));
@@ -90,7 +82,6 @@ public class SearchFragment extends ListFragment{
 		            }
 		            handled = true;
 		        }
-		        editText.getText().clear();
 		        return handled;
 		    }
 		});
@@ -108,12 +99,5 @@ public class SearchFragment extends ListFragment{
 			
 		});
 		return view;
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putCharSequence("textView", wordTextView.getText());
-	}
-	
+	}	
 }
