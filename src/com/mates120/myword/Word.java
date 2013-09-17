@@ -79,12 +79,15 @@ public class Word {
 			if((this.values == null)&&(word.getValues() == null)){
 				isEqual = true;}
 			else{
-				for(int i = 0; i < this.values.size();i++)
-					if(!this.values.get(i).getValue().equals(word.getValue(i).getValue())){
-						isEqual = false;
-						break;
-					}else
-						isEqual = true;
+				if(this.values.size() == word.getValues().size())
+					for(int i = 0; i < this.values.size(); i++)
+						if(!this.values.get(i).getValue().equals(word.getValue(i).getValue())){
+							isEqual = false;
+							break;
+						}else
+							isEqual = true;
+				else
+					isEqual = false;
 			}
 		}
 		return isEqual;

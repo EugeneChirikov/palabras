@@ -15,6 +15,7 @@ public class DictionaryManager {
 	public void addDictionary(Dictionary dictionary ){
 		dataSource.open();
 		if(!dataSource.dictionaryInDB(dictionary.getName()))
+			dataSource.insertDictionary(dictionary.getName());
 			for (int i = 0; i < dictionary.getWords().size(); i ++){
 				addWord(dictionary.getWord(i).getSource(), 
 						dictionary.getWord(i).getValues(), 
@@ -36,9 +37,7 @@ public class DictionaryManager {
 	private void addWord(String wordSource, List<String> values, String dictName){
 		long wordId;
 		long valueIds[];
-		if(!dataSource.dictionaryInDB(dictName))
-			dataSource.insertDictionary(dictName);
-		valueIds = insertValues(values, dictName);
+		valueIds = dataSource.insertValues(values, dictName);
 		Word existWord = dataSource.getWord(wordSource);
 		if(existWord != null){
 			wordId = existWord.getId();
@@ -46,13 +45,6 @@ public class DictionaryManager {
 			wordId = dataSource.insertWord(wordSource);
 		}
 		createWordLinks(wordId, valueIds);
-	}
-	
-	private long[] insertValues(List<String> values, String dictionaryName){
-		long valueIds[] = new long[values.size()];
-		for (int i = 0; i < values.size(); i++)
-			valueIds[i] = dataSource.insertValue(values.get(i), dictionaryName);
-		return valueIds;
 	}
 	
 	private void createWordLinks(long wordId, long[] valueIds){

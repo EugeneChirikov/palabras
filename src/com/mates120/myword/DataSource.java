@@ -78,11 +78,30 @@ public class DataSource {
 	}
 	
 	public long insertValue(String value, String dictionaryName){
+		/*
+		 * Insert one value removed for insertValues
+		 * 
+		 * */
 		long dictId = getDictionaryId(dictionaryName);
 		ContentValues values = new ContentValues();
 		values.put(DatabaseHelper.COL_VALUES_SOURCE, value);
 		values.put(DatabaseHelper.COL_VALUES_DICT_ID, dictId);
 		return database.insert(DatabaseHelper.TABLE_VALUES, null, values);
+	}
+	
+	public long[] insertValues(List<String> sourceValues, String dictionaryName){
+		/*
+		 * Insert list of values.
+		 */
+		long valueIds[] = new long[sourceValues.size()];
+		long dictId = getDictionaryId(dictionaryName);
+		for (int i = 0; i < sourceValues.size(); i++){
+			ContentValues values = new ContentValues();
+			values.put(DatabaseHelper.COL_VALUES_SOURCE, sourceValues.get(i));
+			values.put(DatabaseHelper.COL_VALUES_DICT_ID, dictId);
+			valueIds[i] = database.insert(DatabaseHelper.TABLE_VALUES, null, values);
+		}
+		return valueIds;
 	}
 	
 	public void deleteDictionaryValues(String dictionaryName){
@@ -210,11 +229,14 @@ public class DataSource {
 		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
 				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_NAME + " = ?",
 				new String[]{dictName}, null, null, null);
-		if(cursor != null && cursor.getCount() > 0){
-			cursor.moveToFirst();
-			id = cursor.getLong(0);
+		try{
+			if(cursor != null && cursor.getCount() > 0){
+				cursor.moveToFirst();
+				id = cursor.getLong(0);
+			}
+		}finally{
+			cursor.close();
 		}
-		cursor.close();
 		return id;
 	}
 	
@@ -223,8 +245,12 @@ public class DataSource {
 		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
 				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_NAME + " = ?",
 				new String[]{dictName}, null, null, null);
-		if(cursor != null && cursor.getCount() > 0)
-			inDB = true;
+		try{
+			if(cursor != null && cursor.getCount() > 0)
+				inDB = true;
+		}finally{
+			cursor.close();
+		}
 		return inDB;
 	}
 	
