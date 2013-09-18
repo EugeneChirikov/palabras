@@ -39,4 +39,9 @@ public class WordBuffer
 		CharsetDecoder decoder = charset.newDecoder();
 		return decoder.decode(byteBuffer).toString();
 	}
+	
+	public void clear()
+	{
+		length = 0;
+	}
 }

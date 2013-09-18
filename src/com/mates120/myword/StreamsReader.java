@@ -9,8 +9,7 @@ import com.mates120.myword.Exceptions.EndOfFileException;
 
 public class StreamsReader
 {
-//	private final int BUFFER_LENGTH = 57344; //56Kb
-	private final int BUFFER_LENGTH = 100000;
+	private final int BUFFER_LENGTH = 57344; //56Kb
 	private InputStream myStream;
 	private byte[] myBuffer = null;
 	private int bytesAvailable;

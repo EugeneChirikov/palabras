@@ -216,17 +216,18 @@ public class RawStarDictDictionary extends  RawDictionary
 			WordBuffer wordString = new WordBuffer();
 			byte [] dataOffset = new byte [idxoffsetbits/8]; // 8 or 4 bytes
 			byte [] dataSize = new byte [4]; //4 bytes
+			StarDictWord newWord = null;
 			while (true)
 			{
 				newByte = readByte();
 				if (newByte == WORD_ENDING)
 				{
-					StarDictWord newWord = addWord(wordString.getWord());
-					wordString = new WordBuffer();
+					newWord = addWord(wordString.getWord());
 					readBytesIntoBuffer(dataOffset);
 					newWord.addDataOffset(dataOffset);
 					readBytesIntoBuffer(dataSize);
 					newWord.addDataSize(dataSize);
+					wordString.clear();
 				}
 				else
 				{
