@@ -26,7 +26,7 @@ public class DataSource {
 			DatabaseHelper.COL_LINKS_VALUE};
 	
 	private String[] allDictionariesColumns = {DatabaseHelper.COL_DICTIONARIES_ID,
-			DatabaseHelper.COL_DICTIONARIES_NAME};
+			DatabaseHelper.COL_DICTIONARIES_NAME, DatabaseHelper.COL_DICTIONARIES_ISACT};
 	
 	public DataSource(Context context){
 		dbHelper = new DatabaseHelper(context);
@@ -78,11 +78,30 @@ public class DataSource {
 	}
 	
 	public long insertValue(String value, String dictionaryName){
+		/*
+		 * Insert one value removed for insertValues
+		 * 
+		 * */
 		long dictId = getDictionaryId(dictionaryName);
 		ContentValues values = new ContentValues();
 		values.put(DatabaseHelper.COL_VALUES_SOURCE, value);
 		values.put(DatabaseHelper.COL_VALUES_DICT_ID, dictId);
 		return database.insert(DatabaseHelper.TABLE_VALUES, null, values);
+	}
+	
+	public long[] insertValues(List<String> sourceValues, String dictionaryName){
+		/*
+		 * Insert list of values.
+		 */
+		long valueIds[] = new long[sourceValues.size()];
+		long dictId = getDictionaryId(dictionaryName);
+		for (int i = 0; i < sourceValues.size(); i++){
+			ContentValues values = new ContentValues();
+			values.put(DatabaseHelper.COL_VALUES_SOURCE, sourceValues.get(i));
+			values.put(DatabaseHelper.COL_VALUES_DICT_ID, dictId);
+			valueIds[i] = database.insert(DatabaseHelper.TABLE_VALUES, null, values);
+		}
+		return valueIds;
 	}
 	
 	public void deleteDictionaryValues(String dictionaryName){
@@ -110,13 +129,18 @@ public class DataSource {
 	
 	public List<Value> getWordValues(long wordId){
 		List<Value> values = new ArrayList<Value>();
-		Cursor cursor = database.rawQuery("select " + allValuesColumns[0] 
+		Cursor cursor = database.rawQuery("select " + "val_s." + allValuesColumns[0] 
 				+", " + allValuesColumns[1] + ", " + allValuesColumns[2] 
-				+ " from "	+ DatabaseHelper.TABLE_LINKS
-				+ " links inner join " + DatabaseHelper.TABLE_VALUES
-				+ " val_s ON links."+ DatabaseHelper.COL_LINKS_VALUE 
+				+ " from "	+ DatabaseHelper.TABLE_VALUES
+				+ " val_s inner join " + DatabaseHelper.TABLE_LINKS
+				+ " links ON links."+ DatabaseHelper.COL_LINKS_VALUE 
 				+ " = val_s." + DatabaseHelper.COL_VALUES_ID 
-				+ " where " + DatabaseHelper.COL_LINKS_WORD + " = " + wordId, null);
+				+ " inner join " + DatabaseHelper.TABLE_DICTIONARIES
+				+ " dicts ON val_s." + DatabaseHelper.COL_VALUES_DICT_ID
+				+ " = dicts." + DatabaseHelper.COL_DICTIONARIES_ID
+				+ " where " + DatabaseHelper.COL_DICTIONARIES_ISACT
+				+ " = 1 AND "
+				+ DatabaseHelper.COL_LINKS_WORD + " = " + wordId, null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()){
 			Value value = cursorToValue(cursor);
@@ -175,6 +199,7 @@ public class DataSource {
 	public long insertDictionary(String name){
 		ContentValues values = new ContentValues();
 		values.put(DatabaseHelper.COL_DICTIONARIES_NAME, name);
+		values.put(DatabaseHelper.COL_DICTIONARIES_ISACT, 1);
 		return database.insert(DatabaseHelper.TABLE_DICTIONARIES, null, values);
 	}
 	
@@ -204,11 +229,14 @@ public class DataSource {
 		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
 				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_NAME + " = ?",
 				new String[]{dictName}, null, null, null);
-		if(cursor != null && cursor.getCount() > 0){
-			cursor.moveToFirst();
-			id = cursor.getLong(0);
+		try{
+			if(cursor != null && cursor.getCount() > 0){
+				cursor.moveToFirst();
+				id = cursor.getLong(0);
+			}
+		}finally{
+			cursor.close();
 		}
-		cursor.close();
 		return id;
 	}
 	
@@ -217,8 +245,38 @@ public class DataSource {
 		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
 				allDictionariesColumns, DatabaseHelper.COL_DICTIONARIES_NAME + " = ?",
 				new String[]{dictName}, null, null, null);
-		if(cursor != null && cursor.getCount() > 0)
-			inDB = true;
+		try{
+			if(cursor != null && cursor.getCount() > 0)
+				inDB = true;
+		}finally{
+			cursor.close();
+		}
 		return inDB;
 	}
+	
+	 public List<Dictionary> getAllDictionaries() {
+		    List<Dictionary> dictionaries = new ArrayList<Dictionary>();
+
+		    Cursor cursor = database.query(DatabaseHelper.TABLE_DICTIONARIES,
+		        allDictionariesColumns, null, null, null, null, null);
+
+		    cursor.moveToFirst();
+		    while (!cursor.isAfterLast()) {
+		    	Dictionary currentDict = 
+		    			new Dictionary(cursor.getString(1), cursor.getInt(2));
+		    	dictionaries.add(currentDict);
+		    	cursor.moveToNext();
+		    }
+		    cursor.close();
+		    return dictionaries;
+		  }
+	 
+	 public long setSearchInDict(String name, boolean searchIn){
+		 ContentValues values = new ContentValues();
+		 int value = 0;
+		 if (searchIn) value = 1;
+		 values.put(DatabaseHelper.COL_DICTIONARIES_ISACT, value);
+		 return database.update(DatabaseHelper.TABLE_DICTIONARIES, values,
+				 DatabaseHelper.COL_DICTIONARIES_NAME + "=?", new String[]{name});
+	 }
 }

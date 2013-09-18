@@ -5,14 +5,22 @@ import java.util.List;
 
 public class Dictionary {
 	private String name;
-	private List<Word> words;
+
+	private List<SourceWord> words;
+	private boolean searchIn;
 	
 	public Dictionary(String name){
 		this.name = name;
-		words = new ArrayList<Word>();
-	}	
-
-	public Dictionary(){		
+		words = new ArrayList<SourceWord>();
+		searchIn = true;
+	}
+	
+	public Dictionary(String name, int searchIn){
+		this.name = name;
+		if (searchIn == 1)
+			this.searchIn = true;
+		else
+			this.searchIn = false;
 	}
 
 	public void setName(String name){
@@ -37,5 +45,13 @@ public class Dictionary {
 	
 	public Word getWord(int index){
 		return words.get(index);
+	}
+	
+	public boolean isSearchIn(){
+		return this.searchIn;
+	}
+	
+	public void setSearchIn(boolean searchIn){
+		this.searchIn = searchIn;
 	}
 }
