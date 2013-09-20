@@ -13,6 +13,10 @@ public class DictionaryManager {
 	}
 	
 	public void addDictionary(Dictionary dictionary ){
+		/*
+		 * Now there should be function to install new app that provide 
+		 * own dictionary.
+		 */
 		dataSource.open();
 		if(!dataSource.dictionaryInDB(dictionary.getName()))
 			dataSource.insertDictionary(dictionary.getName());
@@ -25,6 +29,9 @@ public class DictionaryManager {
 	}
 	
 	public void deleteDictionary(String name){
+		/*
+		 * Function to delete application with dictionary
+		 */
 		long valuesIds[];
 		dataSource.open();
 		valuesIds = dataSource.getDictionaryValuesIds(name);
