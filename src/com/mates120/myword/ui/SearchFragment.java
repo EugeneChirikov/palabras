@@ -64,6 +64,10 @@ public class SearchFragment extends ListFragment{
 	                inputMM.hideSoftInputFromWindow(
 	                		editText.getApplicationWindowToken(), 
 	                			InputMethodManager.HIDE_NOT_ALWAYS);
+	                System.out.println(dictionaryManager.getSourceWord(
+	                		editText.getText().toString()).getSource());
+	                System.out.println(dictionaryManager.getSourceWord(
+	                		editText.getText().toString()).getValue());
 		            word = dictionaryManager.getWord(editText.getText().toString());
 		            if(word != null){
 		            	editText.getText().clear();

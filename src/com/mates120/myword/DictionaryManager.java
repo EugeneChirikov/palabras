@@ -2,14 +2,20 @@ package com.mates120.myword;
 
 import java.util.List;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 
 public class DictionaryManager {
 	
 	private DataSource dataSource;
+	private Context context;
 	
 	public DictionaryManager(Context context){
 		dataSource = new DataSource(context);
+		this.context = context;
+		
 	}
 	
 	public void addDictionary(Dictionary dictionary ){
@@ -77,6 +83,24 @@ public class DictionaryManager {
 			word.setValues(dataSource.getWordValues(word.getId()));
 		dataSource.close();
 		return word;
+	}
+	
+	public SourceWord getSourceWord(String wordSource){
+		ContentResolver cr = context.getContentResolver();
+		Uri uri = Uri.parse(
+				"content://com.mates120.dictionarytemplate.WordsProvider/words");
+		String[] projection = new String[]{"_id", "suorce", "value"};
+		String[] selectionArgs = new String[]{wordSource};
+		Cursor cursor = cr.query(uri, projection, null, selectionArgs, null);
+		return cursorToWord(cursor);
+	}
+	
+	private SourceWord cursorToWord(Cursor cursor){
+		SourceWord sWord = null;
+		if(cursor != null && cursor.getCount() > 0){
+			sWord = new SourceWord(cursor.getString(1),cursor.getString(2));
+		}
+		return sWord;
 	}
 	
 	public List<Dictionary> getDictionaries(){

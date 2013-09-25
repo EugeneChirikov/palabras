@@ -9,11 +9,9 @@ public class Word {
 	private int rating;
 	private int searchCount;
 	private List<Value> values;
-	
-	public Word(){
-		
-	}
-	
+
+	public Word(){}
+
 	public Word(String source){
 		this.id = 0;
 		this.source = source;
@@ -21,7 +19,7 @@ public class Word {
 		this.searchCount = 0;
 		this.values = new ArrayList<Value>();
 	}
-	
+
 	public long getId() {
 		return id;
 	}
@@ -29,51 +27,51 @@ public class Word {
 	public void setId(long id) {
 		this.id = id;
 	}
-	
+
 	public String getSource(){
 		return source;
 	}
-	
+
 	public void setSource(String source){
 		this.source = source;
 	}
-	
+
 	public void setSearchCount(int searchCount){
 		this.searchCount = searchCount;
 	}
-	
+
 	public int getSearchCount(){
 		return this.searchCount;
 	}
-	
+
 	public int getRating(){
 		return rating;
 	}
-	
+
 	public void setRating(int rating){
 		this.rating = rating;
 	}
-	
+
 	public void setValues(List<Value> values){
 		this.values = values;
 	}
-	
+
 	public List<Value> getValues(){
 		return this.values;
 	}
-	
+
 	public Value getValue(int index){
 		return this.values.get(index);
 	}
-	
+
 	@Override
 	public String toString(){
 		return source;
 	}
-	
+
 	public boolean equals(Word word){
 		boolean isEqual = false;
-		if((this.source.equals(word.getSource())) && 
+		if((this.source.equals(word.getSource())) &&
 				(this.rating == word.getRating()) &&
 				(this.searchCount == word.getSearchCount())) {
 			if((this.values == null)&&(word.getValues() == null)){
