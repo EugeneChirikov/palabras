@@ -89,7 +89,7 @@ public class DictionaryManager {
 		ContentResolver cr = context.getContentResolver();
 		Uri uri = Uri.parse(
 				"content://com.mates120.dictionarytemplate.WordsProvider/words");
-		String[] projection = new String[]{"_id", "suorce", "value"};
+		String[] projection = new String[]{"_id", "source", "value"};
 		String[] selectionArgs = new String[]{wordSource};
 		Cursor cursor = cr.query(uri, projection, null, selectionArgs, null);
 		return cursorToWord(cursor);
