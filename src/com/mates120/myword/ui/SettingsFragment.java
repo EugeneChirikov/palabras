@@ -2,7 +2,6 @@ package com.mates120.myword.ui;
 
 import java.util.List;
 
-import com.mates120.myword.Dictionary;
 import com.mates120.myword.DictionaryManager;
 import com.mates120.myword.R;
 
@@ -18,7 +17,7 @@ import android.widget.ListView;
 public class SettingsFragment extends ListFragment {
 	
 	private DictionaryManager dictionaryManager;
-	private List<Dictionary> dicts;
+	private List<String> dicts;
 	private DictionaryArrayAdapter mAdapter;
 
 
@@ -52,10 +51,6 @@ public class SettingsFragment extends ListFragment {
 					textView.getText().toString(), true);
 			Log.i("SET DICTIONARY", "SET TRUE");
 		}
-		List<Dictionary> dicts = dictionaryManager.getDictionaries();
-		for (int i = 0; i < dicts.size(); i++)
-			Log.i("DICTIONARY AND IS SEARCH", dicts.get(i).getName() + 
-					" " + dicts.get(i).isSearchIn());
 		textView.setChecked(!textView.isChecked());
 	}
 }

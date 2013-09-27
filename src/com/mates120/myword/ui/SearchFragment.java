@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.mates120.myword.DictionaryManager;
 import com.mates120.myword.R;
-import com.mates120.myword.Value;
 import com.mates120.myword.Word;
 
 import android.content.Context;
@@ -54,7 +53,7 @@ public class SearchFragment extends ListFragment{
 		    @Override
 		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
 		    	ResultArrayAdapter adapter;
-		    	List<Value> values = null;
+		    	List<String> values = null;
 		    	Word word = null;
 		        boolean handled = false;
 		        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -64,10 +63,6 @@ public class SearchFragment extends ListFragment{
 	                inputMM.hideSoftInputFromWindow(
 	                		editText.getApplicationWindowToken(), 
 	                			InputMethodManager.HIDE_NOT_ALWAYS);
-	                System.out.println(dictionaryManager.getSourceWord(
-	                		editText.getText().toString()).getSource());
-	                System.out.println(dictionaryManager.getSourceWord(
-	                		editText.getText().toString()).getValue());
 		            word = dictionaryManager.getWord(editText.getText().toString());
 		            if(word != null){
 		            	editText.getText().clear();
@@ -75,9 +70,8 @@ public class SearchFragment extends ListFragment{
 		            	wordTextView.setText(wordTextViewValue);
 		            	lineViewVisible = View.VISIBLE;
 		            	lineView.setVisibility(lineViewVisible);
-		            	values = new ArrayList<Value>();
-		            	for(int i = 0; i < word.getValues().size(); i++)
-		            		values.add(word.getValue(i));
+		            	values = new ArrayList<String>();
+		            	values.add(word.getValue());
 		            	adapter = new ResultArrayAdapter(getActivity(),
 			        			android.R.id.list, values);
 			        	setListAdapter(adapter);

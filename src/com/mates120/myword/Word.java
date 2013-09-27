@@ -1,33 +1,14 @@
 package com.mates120.myword;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Word {
-	private long id;
 	private String source;
-	private int rating;
-	private int searchCount;
-	private List<Value> values;
+	private String value;
 
-	public Word(){}
-
-	public Word(String source){
-		this.id = 0;
+	public Word(String source, String value){
 		this.source = source;
-		this.rating = 0;
-		this.searchCount = 0;
-		this.values = new ArrayList<Value>();
+		this.value = value;
 	}
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
+	
 	public String getSource(){
 		return source;
 	}
@@ -36,32 +17,13 @@ public class Word {
 		this.source = source;
 	}
 
-	public void setSearchCount(int searchCount){
-		this.searchCount = searchCount;
+
+	public void setValue(String value){
+		this.value = value;
 	}
 
-	public int getSearchCount(){
-		return this.searchCount;
-	}
-
-	public int getRating(){
-		return rating;
-	}
-
-	public void setRating(int rating){
-		this.rating = rating;
-	}
-
-	public void setValues(List<Value> values){
-		this.values = values;
-	}
-
-	public List<Value> getValues(){
-		return this.values;
-	}
-
-	public Value getValue(int index){
-		return this.values.get(index);
+	public String getValue(){
+		return this.value;
 	}
 
 	@Override
@@ -71,23 +33,9 @@ public class Word {
 
 	public boolean equals(Word word){
 		boolean isEqual = false;
-		if((this.source.equals(word.getSource())) &&
-				(this.rating == word.getRating()) &&
-				(this.searchCount == word.getSearchCount())) {
-			if((this.values == null)&&(word.getValues() == null)){
-				isEqual = true;}
-			else{
-				if(this.values.size() == word.getValues().size())
-					for(int i = 0; i < this.values.size(); i++)
-						if(!this.values.get(i).getValue().equals(word.getValue(i).getValue())){
-							isEqual = false;
-							break;
-						}else
-							isEqual = true;
-				else
-					isEqual = false;
-			}
-		}
+		if((this.source.equals(word.getSource())) 
+				&& this.value.equals(word.getValue()))
+			isEqual = true;
 		return isEqual;
 	}
 }
