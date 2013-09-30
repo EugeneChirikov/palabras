@@ -1,5 +1,6 @@
 package com.mates120.myword;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -41,7 +42,7 @@ public class DataSource {
 	}
 	
 	public List<Dictionary> getDicts(){
-		List<Dictionary> dicts = null;
+		List<Dictionary> dicts = new ArrayList<Dictionary>();
 		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTS, allWordsColumns, 
 				null, null, null, null, null);
 		cursor.moveToFirst();
