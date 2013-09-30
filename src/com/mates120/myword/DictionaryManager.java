@@ -21,7 +21,8 @@ public class DictionaryManager {
 	
 	public DictionaryManager(Context context){
 		this.context = context;
-		pacMan = context.getPackageManager();
+		this.pacMan = context.getPackageManager();
+		this.dataSource = new DataSource(context);
 	}
 	
 	public Word getWord(String wordSource){
@@ -45,25 +46,48 @@ public class DictionaryManager {
 		return sWord;
 	}
 	
-	public List<String> getDictionaries(){
-		//TODO: Implement another function that search installed dictionaries.
-		List<ApplicationInfo> packages = pacMan.getInstalledApplications(PackageManager.GET_META_DATA);
-		List<String> dicts = new ArrayList<String>();
-		for (ApplicationInfo packageInfo : packages)
-			if(packageInfo.packageName.endsWith("dictionarytemplate"))
-				dicts.add(packageInfo.packageName); 
+	public List<Dictionary> getDictionaries(){
+		List<Dictionary> dicts;
+		dataSource.open();
+		dicts = dataSource.getDicts();
+		dataSource.close();
 		return dicts;
 	}
 	
 	public void setSearchInDict(String dictName, boolean searchIn){
-		//TODO: Implement another function, that enable or disable installed dicts apps.
+		dataSource.open();
+		dataSource.setSearchInDict(dictName, searchIn);
+		dataSource.close();
 	}
 	
 	public void dictSync(){
 		List<ApplicationInfo> packages = pacMan.getInstalledApplications(PackageManager.GET_META_DATA);
-		List<String> dicts = new ArrayList<String>();
+		List<String> dictsInSystem = new ArrayList<String>();
+		List<Dictionary> dictsInDB;
+		boolean inDB;
 		for (ApplicationInfo packageInfo : packages)
-			if(packageInfo.packageName.endsWith("dictionarytemplate"))
-				dicts.add(packageInfo.packageName); 
+			if(packageInfo.packageName.startsWith("com.mates120."))
+				dictsInSystem.add(packageInfo.packageName.substring(13));
+
+		dataSource.open();
+		dictsInDB = dataSource.getDicts();
+		if(!dictsInDB.isEmpty())
+			for (String dictSys : dictsInSystem){
+				inDB = false;
+				for(Dictionary dictDB : dictsInDB)
+					if (dictDB.getName().equals(dictSys)){
+						System.out.println(dictDB.getName());
+						inDB = true;
+						break;
+					}
+				if(!inDB)
+					dataSource.insertDictionary(dictSys, "com.mates120." + dictSys);
+			}
+		else
+			for (String dictSys : dictsInSystem){
+				System.out.println(dictSys);
+				dataSource.insertDictionary(dictSys, "com.mates120." + dictSys);
+			}
+		dataSource.close();
 	}
 }

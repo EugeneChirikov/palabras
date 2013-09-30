@@ -2,6 +2,7 @@ package com.mates120.myword.ui;
 
 import java.util.List;
 
+import com.mates120.myword.Dictionary;
 import com.mates120.myword.DictionaryManager;
 import com.mates120.myword.R;
 
@@ -17,7 +18,7 @@ import android.widget.ListView;
 public class SettingsFragment extends ListFragment {
 	
 	private DictionaryManager dictionaryManager;
-	private List<String> dicts;
+	private List<Dictionary> dicts;
 	private DictionaryArrayAdapter mAdapter;
 
 
@@ -25,6 +26,7 @@ public class SettingsFragment extends ListFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		dictionaryManager = new DictionaryManager(this.getActivity());
+		dictionaryManager.dictSync();
 		dicts = dictionaryManager.getDictionaries();
 		mAdapter = new DictionaryArrayAdapter(getActivity(),
 				android.R.id.list, dicts);

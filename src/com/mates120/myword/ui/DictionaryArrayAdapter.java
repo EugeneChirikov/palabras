@@ -2,6 +2,7 @@ package com.mates120.myword.ui;
 
 import java.util.List;
 
+import com.mates120.myword.Dictionary;
 import com.mates120.myword.R;
 
 import android.app.Activity;
@@ -12,12 +13,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
 
-public class DictionaryArrayAdapter extends ArrayAdapter<String>{
+public class DictionaryArrayAdapter extends ArrayAdapter<Dictionary>{
 	
 	private Context context;
 
 	public DictionaryArrayAdapter(Context context, 
-			int textViewResourceId, List<String> dicts){
+			int textViewResourceId, List<Dictionary> dicts){
 		super(context, textViewResourceId, dicts);
 		this.context = context;
 	}
@@ -25,7 +26,7 @@ public class DictionaryArrayAdapter extends ArrayAdapter<String>{
 	@Override
 	public CheckedTextView getView(int position, View convertView, ViewGroup parent){
 		CheckedTextView dictionary = null;
-		String dict = getItem(position);
+		Dictionary dict = getItem(position);
 		
 		LayoutInflater mInflater = (LayoutInflater) context
 				.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
@@ -35,8 +36,8 @@ public class DictionaryArrayAdapter extends ArrayAdapter<String>{
 		}
 		dictionary = (CheckedTextView) convertView;
 		
-		dictionary.setText(dict);
-		dictionary.setChecked(true);
+		dictionary.setText(dict.getName());
+		dictionary.setChecked(dict.isSearched());
 		return (CheckedTextView)convertView;
 	}
 }

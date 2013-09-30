@@ -13,7 +13,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
 	public static final String COL_DICTS_APP = "app";
 	public static final String COL_DICTS_SEARCH_IN = "search_in";
 	
-	private static final String DATABASE_NAME = "myword.db";
+	private static final String DATABASE_NAME = "dictionary.db";
 	private static final int DATABASE_VERSION = 1;
 	
 	private static final String DATABASE_CREATE_DICTS = "create table "

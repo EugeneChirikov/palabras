@@ -45,13 +45,15 @@ public class DataSource {
 		List<Dictionary> dicts = new ArrayList<Dictionary>();
 		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTS, allWordsColumns, 
 				null, null, null, null, null);
-		cursor.moveToFirst();
-		while (!cursor.isAfterLast()){
-			Dictionary dict = cursorToDict(cursor);
-			dicts.add(dict);
-			cursor.moveToNext();
+		if(cursor != null) {
+			cursor.moveToFirst();
+			while (!cursor.isAfterLast()){
+				Dictionary dict = cursorToDict(cursor);
+				dicts.add(dict);
+				cursor.moveToNext();
+			}
+			cursor.close();
 		}
-		cursor.close();
 		return dicts;
 	}
 	
@@ -69,5 +71,13 @@ public class DataSource {
 		}
 		return dict;
 	}
-
+	
+	public long setSearchInDict(String name, boolean searchIn){
+		ContentValues values = new ContentValues();
+		int value = 0;
+		if (searchIn) value = 1;
+		values.put(DatabaseHelper.COL_DICTS_SEARCH_IN, value);
+		return database.update(DatabaseHelper.TABLE_DICTS, values,
+				DatabaseHelper.COL_DICTS_NAME + "=?", new String[]{name});
+	}
 }
