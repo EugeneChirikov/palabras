@@ -12,7 +12,7 @@ public class DictionaryManager {
 		dataSource = new DataSource(context);
 	}
 	
-/*	public void addDictionary(Dictionary dictionary ){
+	public void addDictionary(Dictionary dictionary ){
 		dataSource.open();
 		if(!dataSource.dictionaryInDB(dictionary.getName()))
 			dataSource.insertDictionary(dictionary.getName());
@@ -22,7 +22,7 @@ public class DictionaryManager {
 						dictionary.getName());
 			}
 		dataSource.close();
-	}*/
+	}
 	
 	public void deleteDictionary(String name){
 		long valuesIds[];
@@ -34,7 +34,7 @@ public class DictionaryManager {
 		dataSource.close();
 	}
 	
-	private void addWord(String wordSource, List<String> values, String dictName){
+	public void addWord(String wordSource, List<String> values, String dictName){
 		long wordId;
 		long valueIds[];
 		valueIds = dataSource.insertValues(values, dictName);

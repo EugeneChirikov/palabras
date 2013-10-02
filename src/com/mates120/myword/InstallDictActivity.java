@@ -2,9 +2,8 @@ package com.mates120.myword;
 
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -46,13 +45,17 @@ public class InstallDictActivity extends Activity
         {
         	public void run()
         	{
-        		upgradeStatusWith("Obtaining dictionary data...");
         		String dictType = "StarDict"; // assume this we can get with Intent
+        		
+        		upgradeStatusWith("Obtaining dictionary data...");
         		RawDictionary rawDictionary = obtainDictionaryFiles(dictType);
         		upgradeProgressBarWith(33);
-        		upgradeStatusWith("Extracting dictionary data...");
-        		Dictionary dictionary = rawDictionary.parseAll();
+        		
+        		upgradeStatusWith("Extracting and copying dictionary data...");
+        		DictionaryManager dm = new DictionaryManager(getBaseContext());
+        		rawDictionary.parseAndCopyIntoDB(dm);
         		upgradeProgressBarWith(66);
+        		
         		upgradeStatusWith("Indexing dictionary data...");
 //        		upgradeProgressBarWith(100);
 //        		upgradeStatusWith("Installation complete");
@@ -113,6 +116,12 @@ public class InstallDictActivity extends Activity
 			}
 		}
 		return rawDict;
+	}
+	
+	private InputStream obtainFileFromFsystem(String path, String name) throws FileNotFoundException
+	{
+		FileInputStream fis = new FileInputStream(path + "/" + name);
+		return fis;
 	}
 
 	private InputStream obtainFileFromProvider(String dictName)

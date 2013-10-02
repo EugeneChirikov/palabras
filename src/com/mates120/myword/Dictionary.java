@@ -9,10 +9,21 @@ public class Dictionary {
 	private List<SourceWord> words;
 	private boolean searchIn;
 	
-	public Dictionary(String name){
-		this.name = name;
+	public void initDictionary()
+	{
 		words = new ArrayList<SourceWord>();
 		searchIn = true;
+	}
+	
+	public Dictionary()
+	{
+		initDictionary();
+	}
+	
+	public Dictionary(String name)
+	{
+		initDictionary();
+		this.name = name;		
 	}
 	
 	public Dictionary(String name, int searchIn){
@@ -27,9 +38,9 @@ public class Dictionary {
 		this.name = name;
 	}
 
-	public void addWord(String word_source, List<Value> valuesInString)
+	public void addWord(String word_source, List<String> valuesInString)
 	{
-		this.words.add(new Word(word_source, valuesInString));
+		this.words.add(new SourceWord(word_source, valuesInString));
 
 	}
 	
@@ -37,13 +48,13 @@ public class Dictionary {
 		return this.name;
 	}
 	
-	public List<Word> getWords(){
+	public List<SourceWord> getWords(){
 
 
 		return this.words;
 	}
 	
-	public Word getWord(int index){
+	public SourceWord getWord(int index){
 		return words.get(index);
 	}
 	

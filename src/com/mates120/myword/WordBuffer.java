@@ -12,11 +12,14 @@ public class WordBuffer
 	private final int MAX_WORD_LENGTH = 255;
 	private byte [] wordString;
 	int length;
+	CharsetDecoder utf8decoder;
 	
 	public WordBuffer()
 	{
 		wordString = new byte [MAX_WORD_LENGTH];
 		length = 0;
+		Charset charset = Charset.forName("UTF-8");
+		utf8decoder = charset.newDecoder();
 	}
 	
 	public void addByte(byte newByte) throws DictionaryParserException
@@ -27,17 +30,15 @@ public class WordBuffer
 		length++;
 	}
 	
-	public String getWord() throws CharacterCodingException
+	public void getWord() throws CharacterCodingException
 	{
 		ByteBuffer wrappedBuffer = ByteBuffer.wrap(wordString, 0, length);
-		return byteBufferToString(wrappedBuffer);
+//		return byteBufferToString(wrappedBuffer);
 	}
 	
 	private String byteBufferToString(ByteBuffer byteBuffer) throws CharacterCodingException
 	{
-		Charset charset = Charset.forName("UTF-8");
-		CharsetDecoder decoder = charset.newDecoder();
-		return decoder.decode(byteBuffer).toString();
+		return utf8decoder.decode()
 	}
 	
 	public void clear()

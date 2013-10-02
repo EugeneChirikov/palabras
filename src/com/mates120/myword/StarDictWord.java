@@ -1,15 +1,15 @@
 package com.mates120.myword;
 
-public class StarDictWord
+public class StarDictWord extends SourceWord
 {
-//	public static boolean extendedOffset;
-	private Word word;
 	private byte [] dataOffset;
 	private byte [] dataSize;
 	
-	public StarDictWord(String wordString)
+	StarDictWord(int idxoffsetbits)
 	{
-		word = new Word(wordString);
+		super();
+		dataOffset = new byte [idxoffsetbits/8]; // 8 or 4 bytes
+		dataSize = new byte [4]; //4 bytes
 	}
 	
 	public void addDataOffset(byte [] dataOffset)
@@ -22,8 +22,13 @@ public class StarDictWord
 		this.dataSize = dataSize;
 	}
 	
-	public String getWordString()
+	public byte[] getDataOffset()
 	{
-		return word.getSource();
+		return dataOffset;
+	}
+
+	public byte[] getDataSize()
+	{
+		return dataSize;
 	}
 }

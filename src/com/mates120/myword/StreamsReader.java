@@ -33,6 +33,7 @@ public class StreamsReader
 	{	
 	    byte[] buffer = readEverythingByte();
 	    String newst = convertToString(buffer);
+	    buffer = null;
 	    return newst;
 	}
 	
