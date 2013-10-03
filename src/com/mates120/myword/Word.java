@@ -3,10 +3,13 @@ package com.mates120.myword;
 public class Word {
 	private String source;
 	private String value;
+	private String dictionaryName;
 
-	public Word(String source, String value){
+	public Word(String source, String value, String dictionaryName)
+	{
 		this.source = source;
 		this.value = value;
+		this.dictionaryName = dictionaryName;
 	}
 	
 	public String getSource(){

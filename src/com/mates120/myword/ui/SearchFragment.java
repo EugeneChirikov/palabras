@@ -56,7 +56,8 @@ public class SearchFragment extends ListFragment{
 		    	List<String> values = null;
 		    	Word word = null;
 		        boolean handled = false;
-		        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+		        if (actionId == EditorInfo.IME_ACTION_SEARCH)
+		        {
 		        	InputMethodManager inputMM = (InputMethodManager) 
 		        			getActivity().getSystemService(
 		        					Context.INPUT_METHOD_SERVICE);
@@ -64,7 +65,8 @@ public class SearchFragment extends ListFragment{
 	                		editText.getApplicationWindowToken(), 
 	                			InputMethodManager.HIDE_NOT_ALWAYS);
 		            word = dictionaryManager.getWord(editText.getText().toString());
-		            if(word != null){
+		            if(word != null)
+		            {
 		            	editText.getText().clear();
 		            	wordTextViewValue = word.getSource();
 		            	wordTextView.setText(wordTextViewValue);
@@ -75,7 +77,9 @@ public class SearchFragment extends ListFragment{
 		            	adapter = new ResultArrayAdapter(getActivity(),
 			        			android.R.id.list, values);
 			        	setListAdapter(adapter);
-			        }else{
+			        }
+		            else
+		            {
 			        	wordTextView.setText("No such word in the dictionary.");
 		            }
 		            handled = true;

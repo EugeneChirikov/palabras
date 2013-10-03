@@ -1,10 +1,18 @@
 package com.mates120.myword;
 
-public class Dictionary {
+import android.content.ContentResolver;
+import android.database.Cursor;
+import android.net.Uri;
+
+public class Dictionary
+{
 	private long id;
 	private String name;
 	private String app;
-	private boolean searchIn;
+	private boolean isActive;	
+	
+	private final String[] projection = new String[]{"_id", "source", "value"};
+	private final String selection =  "source = ?";
 	
 	public long getId(){
 		return id;
@@ -30,11 +38,37 @@ public class Dictionary {
 		this.app = app;
 	}
 	
-	public boolean isSearched(){
-		return searchIn;
+	public boolean isActive(){
+		return isActive;
 	}
 	
-	public void setSearched(boolean searchIn){
-		this.searchIn = searchIn;
+	public void setActive(boolean searchIn){
+		this.isActive = searchIn;
+	}
+	
+	public Word getWord(String wordSource, ContentResolver cr)
+	{
+		Word foundWord = null;
+		Uri uri = getProviderUri();
+		String[] selectionArgs = new String[]{wordSource};
+		Cursor cursor = cr.query(uri, projection, selection, selectionArgs, null);
+		cursor.moveToFirst();
+		foundWord = cursorToWord(cursor);
+		cursor.close();
+		return foundWord;
+	}
+	
+	private Uri getProviderUri()
+	{
+		Uri uri = Uri.parse("content://" + app + ".WordsProvider/words");
+		return uri;
+	}
+	
+	private Word cursorToWord(Cursor cursor)
+	{
+		Word sWord = null;
+		if(cursor != null && cursor.getCount() > 0)	
+			sWord = new Word(cursor.getString(1),cursor.getString(2), name);
+		return sWord;
 	}
 }
