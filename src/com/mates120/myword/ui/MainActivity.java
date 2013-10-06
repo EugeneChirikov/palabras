@@ -53,12 +53,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                         .setTabListener(this));
 	}
 	
-	private void indexNewDictionaries()
-	{
-		// This function will copy new databases from assets into private storage
-		
-	}
-	
 	@Override
     public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }

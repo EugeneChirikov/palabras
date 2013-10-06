@@ -28,17 +28,19 @@ public class AvailableDictionaries
 	public void refreshList()
 	{
 		obtainKnownDictionariesList();
-		List<String> allDicts = obtainAllDictionariesList();
-		List<String> newDicts = findNewlyInstalledDictionaries(allDicts);
+		List<String> installedDictsApps = obtainInstalledDictionaries();
+		List<String> newDicts = findNewlyInstalledDictionaries(installedDictsApps);
+		List<String> deletedDicts = findAlreadyDeletedDictionaries(installedDictsApps);
 		if (newDicts.size() > 0)
 		{
 			// notify user, do in a separate thread
+			// Is it enough to make toast?
 			makeDictionariesKnown(newDicts);
 		}
-		deletedDicts = findAlreadyDeletedDictionaries(allDicts);
 		if (deletedDicts != null)
 		{
 			// notify user, do in a main thread
+			// Is it enough to make toast?
 			cleanUpDictionaries(deletedDicts);
 		}
 	}
@@ -49,7 +51,7 @@ public class AvailableDictionaries
 		knownDictionaries = db.getDicts();
 	}
 	
-	private List<String> obtainAllDictionariesList()
+	private List<String> obtainInstalledDictionaries()
 	{
 		List<ApplicationInfo> packages = pacMan.getInstalledApplications(PackageManager.GET_META_DATA);
 		List<String> dictsInSystem = new ArrayList<String>();
@@ -59,10 +61,10 @@ public class AvailableDictionaries
 		return dictsInSystem;
 	}
 	
-	private List<String> findNewlyInstalledDictionaries(List<String> allDicts)
+	private List<String> findNewlyInstalledDictionaries(List<String> installedDicts)
 	{
 		List<String> newlyInstalledDicts = new ArrayList<String>();
-		for (String newDict : allDicts)
+		for (String newDict :  installedDicts)
 		{
 			if (isKnownDictionary(newDict))
 				continue;
@@ -83,8 +85,6 @@ public class AvailableDictionaries
 			
 	private List<String> findAlreadyDeletedDictionaries(List<String> allDicts)
 	{
-		
-
 		dataSource.open();
 		dictsInDB = dataSource.getDicts();
 		if(!dictsInDB.isEmpty())
@@ -105,5 +105,10 @@ public class AvailableDictionaries
 				dataSource.insertDictionary(dictSys, "com.mates120." + dictSys);
 			}
 		dataSource.close();
+	}
+	
+	private void makeDictionariesKnown(List<String> newDicts){
+		//1. Generate list of dictionaries to add.
+		//2. Insert dicts to db.
 	}
 }

@@ -28,6 +28,14 @@ public class Word {
 	public String getValue(){
 		return this.value;
 	}
+	
+	public void setDictName(String dictName){
+		this.dictionaryName = dictName;
+	}
+	
+	public String getDictName(){
+		return this.dictionaryName;
+	}
 
 	@Override
 	public String toString(){

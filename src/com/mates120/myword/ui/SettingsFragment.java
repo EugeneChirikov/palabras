@@ -21,7 +21,6 @@ public class SettingsFragment extends ListFragment {
 	private List<Dictionary> dicts;
 	private DictionaryArrayAdapter mAdapter;
 
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -36,8 +35,7 @@ public class SettingsFragment extends ListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_settings, container,
-				false);
+		View view = inflater.inflate(R.layout.fragment_settings, container, false);
 		return view;
 	}
 	

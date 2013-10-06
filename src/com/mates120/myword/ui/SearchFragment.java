@@ -54,7 +54,7 @@ public class SearchFragment extends ListFragment{
 		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
 		    	ResultArrayAdapter adapter;
 		    	List<String> values = null;
-		    	Word word = null;
+		    	List<Word> words = null;
 		        boolean handled = false;
 		        if (actionId == EditorInfo.IME_ACTION_SEARCH)
 		        {
@@ -64,24 +64,22 @@ public class SearchFragment extends ListFragment{
 	                inputMM.hideSoftInputFromWindow(
 	                		editText.getApplicationWindowToken(), 
 	                			InputMethodManager.HIDE_NOT_ALWAYS);
-		            word = dictionaryManager.getWord(editText.getText().toString());
-		            if(word != null)
-		            {
+		            words = dictionaryManager.getWord(editText.getText().toString());
+		            if(words.size() > 0) {
 		            	editText.getText().clear();
-		            	wordTextViewValue = word.getSource();
+		            	wordTextViewValue = editText.getText().toString();
 		            	wordTextView.setText(wordTextViewValue);
 		            	lineViewVisible = View.VISIBLE;
 		            	lineView.setVisibility(lineViewVisible);
 		            	values = new ArrayList<String>();
-		            	values.add(word.getValue());
+		            	for(Word word : words)
+		            		values.add(word.getValue());
 		            	adapter = new ResultArrayAdapter(getActivity(),
 			        			android.R.id.list, values);
 			        	setListAdapter(adapter);
 			        }
 		            else
-		            {
 			        	wordTextView.setText("No such word in the dictionary.");
-		            }
 		            handled = true;
 		        }
 		        return handled;

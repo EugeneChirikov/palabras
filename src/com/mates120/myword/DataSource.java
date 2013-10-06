@@ -64,10 +64,7 @@ public class DataSource {
 			dict.setId(cursor.getLong(0));
 			dict.setName(cursor.getString(1));
 			dict.setApp(cursor.getString(2));
-			if(cursor.getInt(3) == 0)
-				dict.setSearched(false);
-			else
-				dict.setSearched(true);
+			dict.setActive((cursor.getInt(3) == 0) ? false : true);
 		}
 		return dict;
 	}
@@ -76,7 +73,7 @@ public class DataSource {
 		ContentValues values = new ContentValues();
 		int value = 0;
 		if (searchIn) value = 1;
-		values.put(DatabaseHelper.COL_DICTS_SEARCH_IN, value);
+		values.put(DatabaseHelper.COL_DICTS_ISACTIVE, value);
 		return database.update(DatabaseHelper.TABLE_DICTS, values,
 				DatabaseHelper.COL_DICTS_NAME + "=?", new String[]{name});
 	}
