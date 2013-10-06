@@ -1,9 +1,8 @@
 package com.mates120.myword.ui;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.mates120.myword.DictionaryManager;
+import com.mates120.myword.AvailableDictionaries;
 import com.mates120.myword.R;
 import com.mates120.myword.Word;
 
@@ -26,7 +25,7 @@ import android.widget.TextView.OnEditorActionListener;
  */
 public class SearchFragment extends ListFragment{
 	
-	private DictionaryManager dictionaryManager;
+	private AvailableDictionaries availableDictionaries;
 	private EditText editText;
 	private TextView wordTextView;
 	private String wordTextViewValue = "";
@@ -37,7 +36,7 @@ public class SearchFragment extends ListFragment{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setRetainInstance(true);
-		dictionaryManager = new DictionaryManager(this.getActivity());
+		availableDictionaries = AvailableDictionaries.getInstance(this.getActivity());
 	}
 
 	@Override
@@ -49,41 +48,38 @@ public class SearchFragment extends ListFragment{
 		lineView = (View) view.findViewById(R.id.line);
 		lineView.setVisibility(lineViewVisible);
 		wordTextView.setText(wordTextViewValue);
-		editText.setOnEditorActionListener(new OnEditorActionListener() {
+		editText.setOnEditorActionListener(new OnEditorActionListener(){
 		    @Override
 		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
 		    	ResultArrayAdapter adapter;
-		    	List<String> values = null;
-		    	Word word = null;
+		    	List<Word> words = null;
 		        boolean handled = false;
-		        if (actionId == EditorInfo.IME_ACTION_SEARCH)
-		        {
-		        	InputMethodManager inputMM = (InputMethodManager) 
-		        			getActivity().getSystemService(
-		        					Context.INPUT_METHOD_SERVICE);
-	                inputMM.hideSoftInputFromWindow(
-	                		editText.getApplicationWindowToken(), 
-	                			InputMethodManager.HIDE_NOT_ALWAYS);
-		            word = dictionaryManager.getWord(editText.getText().toString());
-		            if(word != null)
-		            {
-		            	editText.getText().clear();
-		            	wordTextViewValue = word.getSource();
-		            	wordTextView.setText(wordTextViewValue);
-		            	lineViewVisible = View.VISIBLE;
-		            	lineView.setVisibility(lineViewVisible);
-		            	values = new ArrayList<String>();
-		            	values.add(word.getValue());
-		            	adapter = new ResultArrayAdapter(getActivity(),
-			        			android.R.id.list, values);
-			        	setListAdapter(adapter);
-			        }
-		            else
-		            {
-			        	wordTextView.setText("No such word in the dictionary.");
-		            }
-		            handled = true;
-		        }
+		        if (actionId != EditorInfo.IME_ACTION_SEARCH)
+		        	return handled;
+		        
+	        	InputMethodManager inputMM = (InputMethodManager) 
+	        			getActivity().getSystemService(
+	        					Context.INPUT_METHOD_SERVICE);
+                inputMM.hideSoftInputFromWindow(
+                		editText.getApplicationWindowToken(), 
+                			InputMethodManager.HIDE_NOT_ALWAYS);
+	            words = availableDictionaries.getWord(editText.getText().toString());
+	            if(words.isEmpty())
+	            {
+	            	wordTextView.setText("No such word in any of dictionaries");	            	
+	            }
+	            else
+	            {
+	            	editText.getText().clear();		            	
+	            	wordTextViewValue = words.get(0).getSource();
+	            	wordTextView.setText(wordTextViewValue);
+	            	lineViewVisible = View.VISIBLE;
+	            	lineView.setVisibility(lineViewVisible);	            	
+	            	adapter = new ResultArrayAdapter(getActivity(),
+		        			android.R.id.list, words);
+		        	setListAdapter(adapter);
+		        }		          
+	            handled = true;	        
 		        return handled;
 		    }
 		});

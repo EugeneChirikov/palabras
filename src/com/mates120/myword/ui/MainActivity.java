@@ -1,6 +1,7 @@
 package com.mates120.myword.ui;
 
 
+import com.mates120.myword.AvailableDictionaries;
 import com.mates120.myword.R;
 
 import android.app.ActionBar;
@@ -53,11 +54,13 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                         .setTabListener(this));
 	}
 	
-	private void indexNewDictionaries()
+
+	@Override
+	protected void onResume()
 	{
-		// This function will copy new databases from assets into private storage
-		
-	}
+		super.onResume();
+		AvailableDictionaries.getInstance(this).refreshList();
+	};
 	
 	@Override
     public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {

@@ -11,13 +11,14 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.mates120.myword.R;
+import com.mates120.myword.Word;
 
-public class ResultArrayAdapter extends ArrayAdapter<String>{
+public class ResultArrayAdapter extends ArrayAdapter<Word>{
 	private Context context;
 
 	public ResultArrayAdapter(Context context, 
-			int textViewResourceId, List<String> values){
-		super(context, textViewResourceId, values);
+			int textViewResourceId, List<Word> words){
+		super(context, textViewResourceId, words);
 		this.context = context;
 	}
 	
@@ -28,7 +29,7 @@ public class ResultArrayAdapter extends ArrayAdapter<String>{
 	
 	public View getView(int position, View convertView, ViewGroup parent){
 		ViewHolder holder = null;
-		String value = getItem(position);
+		Word word = getItem(position);
 		
 		LayoutInflater mInflater = (LayoutInflater) context
 				.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
@@ -43,8 +44,8 @@ public class ResultArrayAdapter extends ArrayAdapter<String>{
 		}else
 			holder = (ViewHolder) convertView.getTag();
 		
-		holder.value.setText(value);
-		holder.dictionary.setText("Dictionary");
+		holder.value.setText(word.getValue());
+		holder.dictionary.setText(word.getDictName());
 		return convertView;
 	}
 }

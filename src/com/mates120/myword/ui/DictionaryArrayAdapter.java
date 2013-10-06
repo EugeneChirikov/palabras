@@ -37,7 +37,7 @@ public class DictionaryArrayAdapter extends ArrayAdapter<Dictionary>{
 		dictionary = (CheckedTextView) convertView;
 		
 		dictionary.setText(dict.getName());
-		dictionary.setChecked(dict.isSearched());
+		dictionary.setChecked(dict.isActive());
 		return (CheckedTextView)convertView;
 	}
 }

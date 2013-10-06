@@ -3,21 +3,33 @@ package com.mates120.myword;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
 public class AvailableDictionaries
-{
+{   // Implements Singleton pattern (no multithreading yet)
 	private List<Dictionary> knownDictionaries;
+	private KnownDictionariesDB dictsDB;
 	private PackageManager pacMan;
-	private Context context;
+	ContentResolver contentResolver;
 	
-	public AvailableDictionaries(Context context)
+	private static final String DICTIONARY_PACKAGE = "com.mates120.dictionary.";
+	private static AvailableDictionaries uniqueInstance;
+	
+	private AvailableDictionaries(Context context)
 	{
-		this.context = context;
-		knownDictionaries = new ArrayList<Dictionary>();
+		dictsDB = new KnownDictionariesDB(context);
 		pacMan = context.getPackageManager();
+		contentResolver = context.getContentResolver();
+	}
+	
+	public static AvailableDictionaries getInstance(Context context)
+	{
+		if (uniqueInstance == null)
+			uniqueInstance = new AvailableDictionaries(context);
+		return uniqueInstance;
 	}
 	
 	public List<Dictionary> getList()
@@ -28,51 +40,43 @@ public class AvailableDictionaries
 	public void refreshList()
 	{
 		obtainKnownDictionariesList();
-		List<String> allDicts = obtainAllDictionariesList();
-		List<String> newDicts = findNewlyInstalledDictionaries(allDicts);
-		if (newDicts.size() > 0)
-		{
-			// notify user, do in a separate thread
-			makeDictionariesKnown(newDicts);
-		}
-		deletedDicts = findAlreadyDeletedDictionaries(allDicts);
-		if (deletedDicts != null)
-		{
-			// notify user, do in a main thread
-			cleanUpDictionaries(deletedDicts);
-		}
+		List<String> allDicts = obtainInstalledDictionariesList();
+		boolean thereAreNew = insertNewlyInstalledDictionaries(allDicts);
+		boolean thereAreDeleted = cleanupAlreadyDeletedDictionaries(allDicts);
+		if (thereAreNew || thereAreDeleted)
+			obtainKnownDictionariesList();
 	}
 	
 	private void obtainKnownDictionariesList()
 	{
-		KnownDictionariesDB db = new KnownDictionariesDB(context);
-		knownDictionaries = db.getDicts();
+		knownDictionaries = dictsDB.getDicts();
 	}
 	
-	private List<String> obtainAllDictionariesList()
+	private List<String> obtainInstalledDictionariesList()
 	{
 		List<ApplicationInfo> packages = pacMan.getInstalledApplications(PackageManager.GET_META_DATA);
 		List<String> dictsInSystem = new ArrayList<String>();
 		for (ApplicationInfo packageInfo : packages)
-			if(packageInfo.packageName.startsWith("com.mates120."))
+			if(packageInfo.packageName.startsWith(DICTIONARY_PACKAGE))
 				dictsInSystem.add(packageInfo.packageName.substring(13));
 		return dictsInSystem;
 	}
 	
-	private List<String> findNewlyInstalledDictionaries(List<String> allDicts)
+	private boolean insertNewlyInstalledDictionaries(List<String> installedDicts)
 	{
-		List<String> newlyInstalledDicts = new ArrayList<String>();
-		for (String newDict : allDicts)
+		boolean wereChanges = false;
+		for (String newDict : installedDicts)
 		{
 			if (isKnownDictionary(newDict))
 				continue;
-			newlyInstalledDicts.add(newDict);
+			dictsDB.insertDictionary(newDict, newDict);
+			wereChanges = true;
 		}
-		return newlyInstalledDicts;
+		return wereChanges;
 	}
 	
 	private boolean isKnownDictionary(String dict)
-	{
+	{		
 		for (Dictionary knownDict : knownDictionaries)
 		{
 			if (dict.equals(knownDict.getApp()))
@@ -81,29 +85,47 @@ public class AvailableDictionaries
 		return false;
 	}
 			
-	private List<String> findAlreadyDeletedDictionaries(List<String> allDicts)
+	private boolean cleanupAlreadyDeletedDictionaries(List<String> installedDicts)
 	{
-		
-
-		dataSource.open();
-		dictsInDB = dataSource.getDicts();
-		if(!dictsInDB.isEmpty())
-			for (String dictSys : dictsInSystem){
-				inDB = false;
-				for(Dictionary dictDB : dictsInDB)
-					if (dictDB.getName().equals(dictSys)){
-						System.out.println(dictDB.getName());
-						inDB = true;
-						break;
-					}
-				if(!inDB)
-					dataSource.insertDictionary(dictSys, "com.mates120." + dictSys);
+		boolean wereChanges = false;
+		for (Dictionary knownDict : knownDictionaries)
+		{
+			if (isKnownInTheSystem(knownDict.getApp(), installedDicts))
+				continue;
+			dictsDB.deleteDictByAppName(knownDict.getApp());
+			wereChanges = true;
+		}
+		return wereChanges;
+	}
+	
+	private boolean isKnownInTheSystem(String knownDict, List<String> allDicts)
+	{		
+		return allDicts.contains(knownDict);
+	}
+	
+	public void setDictionaryActive(String dictName, boolean isActive)
+	{
+		dictsDB.setActiveDict(dictName, isActive);
+		for (Dictionary knownDict : knownDictionaries)
+		{
+			if (knownDict.getName().equals(dictName))
+			{
+				knownDict.setActive(isActive);
+				break;
 			}
-		else
-			for (String dictSys : dictsInSystem){
-				System.out.println(dictSys);
-				dataSource.insertDictionary(dictSys, "com.mates120." + dictSys);
-			}
-		dataSource.close();
+		}
+	}
+	
+	public List<Word> getWord(String wordSource)
+	{
+		List<Word> foundWords = new ArrayList<Word>();
+		Word foundWord = null;
+		for (Dictionary d : knownDictionaries)
+		{
+			foundWord = d.getWord(wordSource, contentResolver);
+			if (foundWord != null)
+				foundWords.add(foundWord);
+		}
+		return foundWords;
 	}
 }

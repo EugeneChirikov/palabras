@@ -9,7 +9,7 @@ public class Dictionary
 	private long id;
 	private String name;
 	private String app;
-	private boolean isActive;	
+	private boolean isActive;
 	
 	private final String[] projection = new String[]{"_id", "source", "value"};
 	private final String selection =  "source = ?";
