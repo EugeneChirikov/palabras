@@ -53,7 +53,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
                         .setText("Settings")
                         .setTabListener(this));
 	}
-	
 
 	@Override
 	protected void onResume()

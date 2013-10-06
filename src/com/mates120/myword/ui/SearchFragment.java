@@ -79,7 +79,7 @@ public class SearchFragment extends ListFragment{
 		        			android.R.id.list, words);
 		        	setListAdapter(adapter);
 		        }		          
-	            handled = true;	        
+	            handled = true;
 		        return handled;
 		    }
 		});

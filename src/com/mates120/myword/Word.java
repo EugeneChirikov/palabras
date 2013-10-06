@@ -29,9 +29,12 @@ public class Word {
 		return this.value;
 	}
 	
-	public String getDictName()
-	{
-		return dictionaryName;
+	public void setDictName(String dictName){
+		this.dictionaryName = dictName;
+	}
+	
+	public String getDictName(){
+		return this.dictionaryName;
 	}
 
 	@Override

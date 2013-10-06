@@ -21,7 +21,6 @@ public class SettingsFragment extends ListFragment {
 	private List<Dictionary> dicts;
 	private DictionaryArrayAdapter mAdapter;
 
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
