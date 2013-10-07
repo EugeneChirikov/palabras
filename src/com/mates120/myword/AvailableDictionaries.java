@@ -5,7 +5,6 @@ import java.util.List;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -52,7 +51,9 @@ public class AvailableDictionaries
 	
 	private void obtainKnownDictionariesList()
 	{
+		dictsDB.open();
 		knownDictionaries = dictsDB.getDicts();
+		dictsDB.close();
 	}
 	
 	private List<String> obtainInstalledDictionariesList()
@@ -61,7 +62,7 @@ public class AvailableDictionaries
 		List<String> dictsInSystem = new ArrayList<String>();
 		for (ApplicationInfo packageInfo : packages)
 			if(packageInfo.packageName.startsWith(DICTIONARY_PACKAGE))
-				dictsInSystem.add(packageInfo.packageName.substring(13));
+				dictsInSystem.add(packageInfo.packageName.substring(24));
 		return dictsInSystem;
 	}
 	
@@ -82,10 +83,8 @@ public class AvailableDictionaries
 	private boolean isKnownDictionary(String dict)
 	{		
 		for (Dictionary knownDict : knownDictionaries)
-		{
 			if (dict.equals(knownDict.getApp()))
 				return true;
-		}
 		return false;
 	}
 			
@@ -111,13 +110,11 @@ public class AvailableDictionaries
 	{
 		dictsDB.setActiveDict(dictName, isActive);
 		for (Dictionary knownDict : knownDictionaries)
-		{
 			if (knownDict.getName().equals(dictName))
 			{
 				knownDict.setActive(isActive);
 				break;
 			}
-		}
 	}
 	
 	public List<Word> getWord(String wordSource)
@@ -135,7 +132,7 @@ public class AvailableDictionaries
 	
 	private String provideDictName(String app){
 		String dictName;
-		Uri uri = getProviderUri();
+		Uri uri = getProviderUri(app);
 		Cursor cursor = contentResolver.query(uri, null, null, null, null);
 		cursor.moveToFirst();
 		dictName = cursor.getString(0);
@@ -145,9 +142,8 @@ public class AvailableDictionaries
 	
 	private Uri getProviderUri(String app)
 	{
-		Uri uri = Uri.parse("content://" 
-				+ DICTIONARY_PACKAGE + app
-				+ "WordsProvider/words/#110");
+		Uri uri = Uri.withAppendedPath(Uri.parse("content://" + DICTIONARY_PACKAGE + app
+				+ ".WordsProvider/words"), "create");
 		return uri;
 	}
 }
