@@ -5,8 +5,11 @@ import java.util.List;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 
 public class AvailableDictionaries
 {   // Implements Singleton pattern (no multithreading yet)
@@ -69,7 +72,8 @@ public class AvailableDictionaries
 		{
 			if (isKnownDictionary(newDict))
 				continue;
-			dictsDB.insertDictionary(newDict, newDict);
+			String dictName = provideDictName(newDict);
+			dictsDB.insertDictionary(dictName, newDict);
 			wereChanges = true;
 		}
 		return wereChanges;
@@ -127,5 +131,23 @@ public class AvailableDictionaries
 				foundWords.add(foundWord);
 		}
 		return foundWords;
+	}
+	
+	private String provideDictName(String app){
+		String dictName;
+		Uri uri = getProviderUri();
+		Cursor cursor = contentResolver.query(uri, null, null, null, null);
+		cursor.moveToFirst();
+		dictName = cursor.getString(0);
+		cursor.close();
+		return dictName;
+	}
+	
+	private Uri getProviderUri(String app)
+	{
+		Uri uri = Uri.parse("content://" 
+				+ DICTIONARY_PACKAGE + app
+				+ "WordsProvider/words/#110");
+		return uri;
 	}
 }
