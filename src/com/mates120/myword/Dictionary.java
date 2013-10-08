@@ -6,6 +6,7 @@ import android.net.Uri;
 
 public class Dictionary
 {
+	private final String PACKAGE = "com.mates120.dictionary.";
 	private long id;
 	private String name;
 	private String app;
@@ -13,6 +14,18 @@ public class Dictionary
 	
 	private final String[] projection = new String[]{"_id", "source", "value"};
 	private final String selection =  "source = ?";
+	
+	public Dictionary(){}
+	
+	public Dictionary(String dictApp, ContentResolver cr){
+		app = dictApp;
+		Uri uri = getProviderUri("words/create");
+		Cursor cursor = cr.query(uri, null, null, null, null);
+		cursor.moveToFirst();
+		name = cursor.getString(0);
+		cursor.close();
+		isActive = true;
+	}
 	
 	public long getId(){
 		return id;
@@ -49,7 +62,7 @@ public class Dictionary
 	public Word getWord(String wordSource, ContentResolver cr)
 	{
 		Word foundWord = null;
-		Uri uri = getProviderUri();
+		Uri uri = getProviderUri("words");
 		String[] selectionArgs = new String[]{wordSource};
 		Cursor cursor = cr.query(uri, projection, selection, selectionArgs, null);
 		cursor.moveToFirst();
@@ -58,9 +71,14 @@ public class Dictionary
 		return foundWord;
 	}
 	
-	private Uri getProviderUri()
+	/*
+	 * uri_opt can be "words" for search words in dictionaries or
+	 * "words/create" for create dictionary via contentProvider
+	 */
+	private Uri getProviderUri(String uri_opt)
 	{
-		Uri uri = Uri.parse("content://" + app + ".WordsProvider/words");
+		Uri uri = null;
+		uri = Uri.parse("content://" + PACKAGE + app + ".WordsProvider/" + uri_opt);
 		return uri;
 	}
 	

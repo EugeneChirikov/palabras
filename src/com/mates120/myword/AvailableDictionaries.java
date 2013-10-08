@@ -7,8 +7,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 
 public class AvailableDictionaries
 {   // Implements Singleton pattern (no multithreading yet)
@@ -43,10 +41,8 @@ public class AvailableDictionaries
 	{
 		obtainKnownDictionariesList();
 		List<String> allDicts = obtainInstalledDictionariesList();
-		boolean thereAreNew = insertNewlyInstalledDictionaries(allDicts);
-		boolean thereAreDeleted = cleanupAlreadyDeletedDictionaries(allDicts);
-		if (thereAreNew || thereAreDeleted)
-			obtainKnownDictionariesList();
+		insertNewlyInstalledDictionaries(allDicts);
+		cleanupAlreadyDeletedDictionaries(allDicts);
 	}
 	
 	private void obtainKnownDictionariesList()
@@ -73,8 +69,11 @@ public class AvailableDictionaries
 		{
 			if (isKnownDictionary(newDict))
 				continue;
-			String dictName = provideDictName(newDict);
-			dictsDB.insertDictionary(dictName, newDict);
+			Dictionary currentDictionary = new Dictionary(newDict, contentResolver);
+			dictsDB.open();
+			dictsDB.insertDictionary(currentDictionary);
+			dictsDB.close();
+			knownDictionaries.add(currentDictionary);
 			wereChanges = true;
 		}
 		return wereChanges;
@@ -95,7 +94,10 @@ public class AvailableDictionaries
 		{
 			if (isKnownInTheSystem(knownDict.getApp(), installedDicts))
 				continue;
+			dictsDB.open();
 			dictsDB.deleteDictByAppName(knownDict.getApp());
+			dictsDB.close();
+			knownDictionaries.remove(knownDict);
 			wereChanges = true;
 		}
 		return wereChanges;
@@ -108,11 +110,13 @@ public class AvailableDictionaries
 	
 	public void setDictionaryActive(String dictName, boolean isActive)
 	{
+		dictsDB.open();
 		dictsDB.setActiveDict(dictName, isActive);
-		for (Dictionary knownDict : knownDictionaries)
-			if (knownDict.getName().equals(dictName))
+		dictsDB.close();
+		for(int i = 0; i < knownDictionaries.size(); i++)
+			if (knownDictionaries.get(i).getName().equals(dictName))
 			{
-				knownDict.setActive(isActive);
+				knownDictionaries.get(i).setActive(isActive);
 				break;
 			}
 	}
@@ -123,27 +127,12 @@ public class AvailableDictionaries
 		Word foundWord = null;
 		for (Dictionary d : knownDictionaries)
 		{
+			if(!d.isActive())
+				continue;
 			foundWord = d.getWord(wordSource, contentResolver);
 			if (foundWord != null)
 				foundWords.add(foundWord);
 		}
 		return foundWords;
-	}
-	
-	private String provideDictName(String app){
-		String dictName;
-		Uri uri = getProviderUri(app);
-		Cursor cursor = contentResolver.query(uri, null, null, null, null);
-		cursor.moveToFirst();
-		dictName = cursor.getString(0);
-		cursor.close();
-		return dictName;
-	}
-	
-	private Uri getProviderUri(String app)
-	{
-		Uri uri = Uri.withAppendedPath(Uri.parse("content://" + DICTIONARY_PACKAGE + app
-				+ ".WordsProvider/words"), "create");
-		return uri;
 	}
 }

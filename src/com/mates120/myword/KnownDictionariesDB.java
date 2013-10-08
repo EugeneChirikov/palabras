@@ -15,8 +15,9 @@ public class KnownDictionariesDB
 	private SQLiteDatabase database;
 	private DatabaseHelper dbHelper;
 
-	private String[] allWordsColumns = {DatabaseHelper.COL_DICTS_ID,
-		DatabaseHelper.COL_DICTS_NAME, DatabaseHelper.COL_DICTS_APP};
+	private String[] allDictsColumns = {DatabaseHelper.COL_DICTS_ID,
+		DatabaseHelper.COL_DICTS_NAME, DatabaseHelper.COL_DICTS_APP,
+		DatabaseHelper.COL_DICTS_ISACTIVE};
 
 	public KnownDictionariesDB(Context context)
 	{
@@ -32,11 +33,12 @@ public class KnownDictionariesDB
 		dbHelper.close();
 	}
 	
-	public long insertDictionary(String dictName, String dictApp)
+	public long insertDictionary(Dictionary dictionary)
 	{
 		ContentValues values = new ContentValues();
-		values.put(DatabaseHelper.COL_DICTS_NAME, dictName);
-		values.put(DatabaseHelper.COL_DICTS_APP, dictApp);
+		values.put(DatabaseHelper.COL_DICTS_NAME, dictionary.getName());
+		values.put(DatabaseHelper.COL_DICTS_APP, dictionary.getApp());
+		values.put(DatabaseHelper.COL_DICTS_ISACTIVE, 1);
 		return database.insert(DatabaseHelper.TABLE_DICTS, null, values);
 	}
 	
@@ -44,7 +46,7 @@ public class KnownDictionariesDB
 	{
 		Log.d("MY_WORD","Dictionary deleted with app name: " + dictApp);
 		database.delete(DatabaseHelper.TABLE_DICTS,
-			DatabaseHelper.COL_DICTS_APP + " = " + dictApp, null);
+			DatabaseHelper.COL_DICTS_APP + " = ?", new String[]{dictApp});
 	}
 	
 	public void deleteDictById(long dictId)
@@ -57,7 +59,7 @@ public class KnownDictionariesDB
 	public List<Dictionary> getDicts()
 	{
 		List<Dictionary> dicts = new ArrayList<Dictionary>();
-		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTS, allWordsColumns,
+		Cursor cursor = database.query(DatabaseHelper.TABLE_DICTS, allDictsColumns,
 		null, null, null, null, null);
 		if(cursor == null)
 			return dicts;
@@ -75,14 +77,13 @@ public class KnownDictionariesDB
 	private Dictionary cursorToDict(Cursor cursor)
 	{
 		Dictionary dict = null;
-		if(cursor == null || cursor.getCount() < 0)
-			return dict;
-		dict = new Dictionary();
-		dict.setId(cursor.getLong(0));
-		dict.setName(cursor.getString(1));
-		dict.setApp(cursor.getString(2));
-		int is_active = cursor.getInt(3);
-		dict.setActive(is_active > 0 ? true : false);
+		if(cursor != null && cursor.getCount() > 0){
+			dict = new Dictionary();
+			dict.setId(cursor.getLong(0));
+			dict.setName(cursor.getString(1));
+			dict.setApp(cursor.getString(2));
+			dict.setActive(cursor.getInt(3) > 0 ? true : false);
+		}
 		return dict;
 	}
 	
