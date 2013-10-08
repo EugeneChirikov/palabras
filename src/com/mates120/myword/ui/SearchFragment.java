@@ -66,7 +66,10 @@ public class SearchFragment extends ListFragment{
 	            words = availableDictionaries.getWord(editText.getText().toString());
 	            if(words.isEmpty())
 	            {
-	            	wordTextView.setText("No such word in any of dictionaries");	            	
+	            	wordTextView.setText("No such word in any of dictionaries");
+	            	lineViewVisible = View.INVISIBLE;
+	            	lineView.setVisibility(lineViewVisible);
+	            	setListAdapter(null);
 	            }
 	            else
 	            {
