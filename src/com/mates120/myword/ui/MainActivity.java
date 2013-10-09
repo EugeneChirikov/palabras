@@ -1,6 +1,6 @@
 package com.mates120.myword.ui;
 
-import com.mates120.myword.AvailableDictionaries;
+import com.mates120.myword.PlayStore;
 import com.mates120.myword.R;
 
 import android.app.ActionBar;
@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
+import android.view.View;
 
 public class MainActivity extends FragmentActivity implements ActionBar.TabListener{
 	
@@ -58,7 +59,6 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	{
 		super.onResume();
 		new RefreshDictionariesListTask(this);
-//		AvailableDictionaries.getInstance(this).refreshList();
 	};
 	
 	@Override
@@ -80,5 +80,10 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+	
+	public void addDictionary(View view)
+	{
+		new PlayStore(this).findDictionaries();
 	}
 }

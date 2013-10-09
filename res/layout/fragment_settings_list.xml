@@ -43,7 +43,8 @@
             android:id="@+id/addDictionary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/add_dictionary" />
+            android:text="@string/add_dictionary" 
+            android:onClick="addDictionary" />
     </TableRow>
 
     <TableRow
