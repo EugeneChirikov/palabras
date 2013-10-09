@@ -1,6 +1,5 @@
 package com.mates120.myword.ui;
 
-
 import com.mates120.myword.AvailableDictionaries;
 import com.mates120.myword.R;
 
@@ -58,7 +57,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	protected void onResume()
 	{
 		super.onResume();
-		AvailableDictionaries.getInstance(this).refreshList();
+		new RefreshDictionariesListTask(this);
+//		AvailableDictionaries.getInstance(this).refreshList();
 	};
 	
 	@Override

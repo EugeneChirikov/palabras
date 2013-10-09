@@ -25,7 +25,7 @@ public class AvailableDictionaries
 		contentResolver = context.getContentResolver();
 	}
 	
-	public static AvailableDictionaries getInstance(Context context)
+	public static synchronized AvailableDictionaries getInstance(Context context)
 	{
 		if (uniqueInstance == null)
 			uniqueInstance = new AvailableDictionaries(context);
