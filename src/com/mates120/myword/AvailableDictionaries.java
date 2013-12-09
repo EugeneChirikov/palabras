@@ -135,4 +135,18 @@ public class AvailableDictionaries
 		}
 		return foundWords;
 	}
+	
+	public List<String> getHints(String startWith) {
+		List<String> availHints = new ArrayList<String>();
+		List<String> dictHints;
+		for (Dictionary d : knownDictionaries)
+		{
+			if(!d.isActive())
+				continue;
+			dictHints = d.getHints(startWith, contentResolver);
+			if (!dictHints.isEmpty())
+				availHints.addAll(dictHints);
+		}
+		return availHints;
+	}
 }

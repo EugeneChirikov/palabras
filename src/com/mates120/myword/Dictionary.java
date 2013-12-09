@@ -1,5 +1,8 @@
 package com.mates120.myword;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
@@ -12,8 +15,10 @@ public class Dictionary
 	private String app;
 	private boolean isActive;
 	
-	private final String[] projection = new String[]{"_id", "source", "value"};
-	private final String selection =  "source = ?";
+	private final String[] wordsProjection = new String[]{"_id", "source", "value"};
+	private final String[] hintsProjection = new String[]{"source"};
+	private final String wordsSelection =  "source = ?";
+	private final String hintsSelection =  "source like ?";
 	
 	public Dictionary(){}
 	
@@ -64,16 +69,35 @@ public class Dictionary
 		Word foundWord = null;
 		Uri uri = getProviderUri("words");
 		String[] selectionArgs = new String[]{wordSource};
-		Cursor cursor = cr.query(uri, projection, selection, selectionArgs, null);
+		Cursor cursor = cr.query(uri, wordsProjection, wordsSelection, selectionArgs, null);
 		cursor.moveToFirst();
 		foundWord = cursorToWord(cursor);
 		cursor.close();
 		return foundWord;
 	}
 	
+	public List<String> getHints(String startCharacters, ContentResolver cr) {
+		List<String> hints = new ArrayList<String>();
+		String hint;
+		Uri uri = getProviderUri("words");
+		String[] selectionArgs = new String[]{startCharacters + "%"};
+		Cursor cursor = cr.query(uri, hintsProjection, hintsSelection, selectionArgs, null);
+		cursor.moveToFirst();
+		while(cursor != null && cursor.getCount() > 0) {
+			hint = cursor.getString(0);
+			hints.add(hint);
+			if(cursor.isLast())
+				break;
+			cursor.moveToNext();
+		}
+		cursor.close();
+		return hints;
+	}
+	
 	/*
 	 * uri_opt can be "words" for search words in dictionaries or
-	 * "words/create" for create dictionary via contentProvider
+	 * "words/create" for create dictionary via contentProvider or
+	 * "words/hints" for get hints from start characters
 	 */
 	private Uri getProviderUri(String uri_opt)
 	{
