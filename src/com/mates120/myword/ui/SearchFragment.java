@@ -95,7 +95,7 @@ public class SearchFragment extends ListFragment{
             }
             else
             {
-            	editText.getText().clear();		            	
+            	editText.getText().clear();
             	wordTextViewValue = words.get(0).getSource();
             	wordTextView.setText(wordTextViewValue);
             	lineView.setVisibility(View.VISIBLE);	            	
@@ -112,7 +112,14 @@ public class SearchFragment extends ListFragment{
 		
 		@Override
 		public void afterTextChanged(Editable s) {
-			// TODO Auto-generated method stub
+			List<String> hints;
+			ArrayAdapter<String> hintsAdapter;
+			wordTextView.setHeight(0);
+			hints = availableDictionaries.getHints(editText.getText().toString());
+			hintsAdapter = new ArrayAdapter<String>(getActivity(),
+					android.R.layout.simple_list_item_1, hints);
+        	setListAdapter(hintsAdapter);
+        	getListView().setOnItemClickListener(new HintSelectListener());
 		}
 
 		@Override
@@ -124,14 +131,14 @@ public class SearchFragment extends ListFragment{
 		@Override
 		public void onTextChanged(CharSequence s, int start, int before,
 				int count) {
-			List<String> hints;
+/*			List<String> hints;
 			ArrayAdapter<String> hintsAdapter;
 			wordTextView.setHeight(0);
 			hints = availableDictionaries.getHints(editText.getText().toString());
 			hintsAdapter = new ArrayAdapter<String>(getActivity(),
 					android.R.layout.simple_list_item_1, hints);
         	setListAdapter(hintsAdapter);
-        	getListView().setOnItemClickListener(new HintSelectListener());
+        	getListView().setOnItemClickListener(new HintSelectListener());*/
 		}
 		
 	}
