@@ -18,6 +18,7 @@ import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -32,9 +33,9 @@ public class SearchFragment extends ListFragment{
 	
 	private AvailableDictionaries availableDictionaries;
 	private EditText editText;
-	private TextView wordTextView;
-	private String wordTextViewValue = "";
-	private View lineView;
+	private WebView resultWebView;
+	private String mime = "text/html";
+	private String encoding = "utf-8";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -48,10 +49,7 @@ public class SearchFragment extends ListFragment{
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_search_list, container, false);
 		editText = (EditText) view.findViewById(R.id.editTextSearch);
-		wordTextView = (TextView) view.findViewById(R.id.resWordTextView);
-		lineView = (View) view.findViewById(R.id.line);
-		lineView.setVisibility(View.INVISIBLE);
-		wordTextView.setText(wordTextViewValue);
+		resultWebView = (WebView) view.findViewById(R.id.resultsWebView);
 		editText.setOnEditorActionListener(new EditorActionListener());
 		editText.setOnFocusChangeListener(new OnFocusChangeListener(){
 
@@ -74,7 +72,6 @@ public class SearchFragment extends ListFragment{
 
 		@Override
 		public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-			ResultArrayAdapter adapter;
 	    	List<Word> words = null;
 	        boolean handled = false;
 	        if (actionId != EditorInfo.IME_ACTION_SEARCH)
@@ -89,20 +86,16 @@ public class SearchFragment extends ListFragment{
             words = availableDictionaries.getWord(editText.getText().toString());
             if(words.isEmpty())
             {
-            	wordTextView.setText("No such word in any of dictionaries");
-            	lineView.setVisibility(View.INVISIBLE);
-            	setListAdapter(null);
+            	Word emptyWord = new Word("","No such word in any of dictionaries","");
+            	words.add(emptyWord);
             }
             else
             {
-            	editText.getText().clear();
-            	wordTextViewValue = words.get(0).getSource();
-            	wordTextView.setText(wordTextViewValue);
-            	lineView.setVisibility(View.VISIBLE);	            	
-            	adapter = new ResultArrayAdapter(getActivity(),
-	        			android.R.id.list, words);
-	        	setListAdapter(adapter);
-	        }		          
+            	editText.getText().clear();		            	            	
+            }
+            setListAdapter(null);
+            resultWebView.setVisibility(View.VISIBLE);
+            resultWebView.loadDataWithBaseURL(null, convertValuesToHtml(words), mime, encoding, null);
             handled = true;
 	        return handled;
 	    }		
@@ -131,9 +124,11 @@ public class SearchFragment extends ListFragment{
 		@Override
 		public void onTextChanged(CharSequence s, int start, int before,
 				int count) {
-/*			List<String> hints;
+
+/*			
+			resultWebView.clearView();
+			List<String> hints;
 			ArrayAdapter<String> hintsAdapter;
-			wordTextView.setHeight(0);
 			hints = availableDictionaries.getHints(editText.getText().toString());
 			hintsAdapter = new ArrayAdapter<String>(getActivity(),
 					android.R.layout.simple_list_item_1, hints);
@@ -148,10 +143,20 @@ public class SearchFragment extends ListFragment{
 		@Override
 		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 				long arg3) {
-			// TODO Auto-generated method stub
+			List<Word> words = null;
 			TextView textItem = (TextView) arg1;
-			editText.setText(textItem.getText());
+			words = availableDictionaries.getWord(textItem.getText().toString());
+            editText.getText().clear();
+        	setListAdapter(null);
+        	resultWebView.setVisibility(View.VISIBLE);
+        	resultWebView.loadDataWithBaseURL(null, convertValuesToHtml(words), mime, encoding, null);
 		}
-		
+	}
+	
+	private String convertValuesToHtml(List<Word> words){
+		String resultValue = "";
+		for(Word word : words)
+			resultValue += word.getValue();
+		return resultValue;
 	}
 }

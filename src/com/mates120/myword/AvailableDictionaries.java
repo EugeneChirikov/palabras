@@ -145,7 +145,13 @@ public class AvailableDictionaries
 				continue;
 			dictHints = d.getHints(startWith, contentResolver);
 			if (!dictHints.isEmpty())
-				availHints.addAll(dictHints);
+				for (String hint : dictHints) {
+					if (availHints.size() == 20)
+						break;
+					availHints.add(hint);
+				}
+			if (availHints.size() == 20)
+				break;
 		}
 		return availHints;
 	}
