@@ -6,9 +6,9 @@ import com.mates120.myword.AvailableDictionaries;
 import com.mates120.myword.R;
 import com.mates120.myword.Word;
 
+import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -23,19 +23,56 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 /**
  * A fragment representing a list of Items.
+ *
+ *           
+ *       
  */
-public class SearchFragment extends ListFragment{
-	
+
+/*<EditText
+android:id="@+id/editTextSearch"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="@string/enter_word_for_search"
+android:imeOptions="actionSearch"
+android:inputType="text" >
+<requestFocus />
+</EditText>
+
+<ListView
+android:id="@android:id/list"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:dividerHeight="3dp"
+android:showDividers="middle" >
+</ListView>        
+
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/Settings"
+android:layout_width="fill_parent"
+android:layout_height="match_parent"
+android:shrinkColumns="1"
+android:stretchColumns="*"
+tools:context=".SearchFragment" >*/
+
+public class SearchFragment extends Fragment
+{	
 	private AvailableDictionaries availableDictionaries;
 	private EditText editText;
 	private WebView resultWebView;
 	private String mime = "text/html";
 	private String encoding = "utf-8";
+	private ListView hintsList;
+	private LinearLayout searchLayout;
+	private boolean hintsShown = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -46,10 +83,15 @@ public class SearchFragment extends ListFragment{
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+			Bundle savedInstanceState)
+	{		
 		View view = inflater.inflate(R.layout.fragment_search_list, container, false);
+		searchLayout = (LinearLayout)view.findViewById(R.id.Search);		
 		editText = (EditText) view.findViewById(R.id.editTextSearch);
-		resultWebView = (WebView) view.findViewById(R.id.resultsWebView);
+		
+		resultWebView = new WebView(getActivity());
+		hintsList = new ListView(getActivity());
+		
 		editText.setOnEditorActionListener(new EditorActionListener());
 		editText.setOnFocusChangeListener(new OnFocusChangeListener(){
 
@@ -68,11 +110,53 @@ public class SearchFragment extends ListFragment{
 		return view;
 	}
 	
+	private void showHintsList()
+	{
+		if (hintsShown == true)
+			return;
+		searchLayout.removeView(resultWebView);
+		searchLayout.addView(hintsList);
+		hintsShown = true;
+	}
+	
+	private void showResultsView()
+	{
+		if (hintsShown == false)
+			return;
+		searchLayout.removeView(hintsList);
+		searchLayout.addView(resultWebView);
+		hintsShown = false;
+	}
+	
+	private void findAndShowWordDefenition()
+	{
+        List<Word> words = null;
+        words = availableDictionaries.getWord(editText.getText().toString());
+        if(words.isEmpty())
+        {
+        	Word emptyWord = new Word("","No such word in any of dictionaries","");
+        	words.add(emptyWord);
+        }
+        else
+        {
+        	editText.getText().clear();
+        }
+//        resultWebView.setVisibility(View.VISIBLE);
+        resultWebView.loadDataWithBaseURL(null, convertValuesToHtml(words), mime, encoding, null);
+        showResultsView();
+	}
+	
+	private String convertValuesToHtml(List<Word> words)
+	{
+		HtmlPageComposer pc = new HtmlPageComposer();		
+		return pc.makePage(words);
+	}
+	
 	class EditorActionListener implements OnEditorActionListener{
 
 		@Override
-		public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-	    	List<Word> words = null;
+		public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+		{	    	
 	        boolean handled = false;
 	        if (actionId != EditorInfo.IME_ACTION_SEARCH)
 	        	return handled;
@@ -82,20 +166,8 @@ public class SearchFragment extends ListFragment{
         					Context.INPUT_METHOD_SERVICE);
             inputMM.hideSoftInputFromWindow(
             		editText.getApplicationWindowToken(), 
-            			InputMethodManager.HIDE_NOT_ALWAYS);
-            words = availableDictionaries.getWord(editText.getText().toString());
-            if(words.isEmpty())
-            {
-            	Word emptyWord = new Word("","No such word in any of dictionaries","");
-            	words.add(emptyWord);
-            }
-            else
-            {
-            	editText.getText().clear();		            	            	
-            }
-            setListAdapter(null);
-            resultWebView.setVisibility(View.VISIBLE);
-            resultWebView.loadDataWithBaseURL(null, convertValuesToHtml(words), mime, encoding, null);
+            			InputMethodManager.HIDE_NOT_ALWAYS);            
+            findAndShowWordDefenition();
             handled = true;
 	        return handled;
 	    }		
@@ -107,12 +179,12 @@ public class SearchFragment extends ListFragment{
 		public void afterTextChanged(Editable s) {
 			List<String> hints;
 			ArrayAdapter<String> hintsAdapter;
-			wordTextView.setHeight(0);
 			hints = availableDictionaries.getHints(editText.getText().toString());
 			hintsAdapter = new ArrayAdapter<String>(getActivity(),
 					android.R.layout.simple_list_item_1, hints);
-        	setListAdapter(hintsAdapter);
-        	getListView().setOnItemClickListener(new HintSelectListener());
+			hintsList.setAdapter(hintsAdapter);
+			hintsList.setOnItemClickListener(new HintSelectListener());
+			showHintsList();
 		}
 
 		@Override
@@ -123,40 +195,16 @@ public class SearchFragment extends ListFragment{
 
 		@Override
 		public void onTextChanged(CharSequence s, int start, int before,
-				int count) {
-
-/*			
-			resultWebView.clearView();
-			List<String> hints;
-			ArrayAdapter<String> hintsAdapter;
-			hints = availableDictionaries.getHints(editText.getText().toString());
-			hintsAdapter = new ArrayAdapter<String>(getActivity(),
-					android.R.layout.simple_list_item_1, hints);
-        	setListAdapter(hintsAdapter);
-        	getListView().setOnItemClickListener(new HintSelectListener());*/
-		}
-		
+				int count) {}		
 	}
 	
 	class HintSelectListener implements OnItemClickListener{
 
 		@Override
 		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-				long arg3) {
-			List<Word> words = null;
-			TextView textItem = (TextView) arg1;
-			words = availableDictionaries.getWord(textItem.getText().toString());
-            editText.getText().clear();
-        	setListAdapter(null);
-        	resultWebView.setVisibility(View.VISIBLE);
-        	resultWebView.loadDataWithBaseURL(null, convertValuesToHtml(words), mime, encoding, null);
+				long arg3)
+		{			
+			findAndShowWordDefenition();
 		}
-	}
-	
-	private String convertValuesToHtml(List<Word> words){
-		String resultValue = "";
-		for(Word word : words)
-			resultValue += word.getValue();
-		return resultValue;
 	}
 }
