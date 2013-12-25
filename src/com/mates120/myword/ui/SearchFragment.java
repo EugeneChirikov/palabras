@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
@@ -73,6 +74,7 @@ public class SearchFragment extends Fragment
 	private ListView hintsList;
 	private LinearLayout searchLayout;
 	private boolean hintsShown = false;
+	private HtmlPageComposer htmlPageComposer;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -84,12 +86,14 @@ public class SearchFragment extends Fragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState)
-	{		
+	{
+		htmlPageComposer = new HtmlPageComposer();
 		View view = inflater.inflate(R.layout.fragment_search_list, container, false);
 		searchLayout = (LinearLayout)view.findViewById(R.id.Search);		
 		editText = (EditText) view.findViewById(R.id.editTextSearch);
 		
 		resultWebView = new WebView(getActivity());
+		resultWebView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)); 
 		hintsList = new ListView(getActivity());
 		
 		editText.setOnEditorActionListener(new EditorActionListener());
@@ -128,28 +132,33 @@ public class SearchFragment extends Fragment
 		hintsShown = false;
 	}
 	
-	private void findAndShowWordDefenition()
+	private void findAndShowWordDefenition(CharSequence word)
 	{
         List<Word> words = null;
-        words = availableDictionaries.getWord(editText.getText().toString());
+        words = availableDictionaries.getWord(word.toString());
+        String result;
         if(words.isEmpty())
         {
-        	Word emptyWord = new Word("","No such word in any of dictionaries","");
-        	words.add(emptyWord);
+        	result = generateWordNotFoundHtml();
         }
         else
         {
-        	editText.getText().clear();
+        	result = convertValuesToHtml(words);
+            editText.getText().clear();
         }
-//        resultWebView.setVisibility(View.VISIBLE);
-        resultWebView.loadDataWithBaseURL(null, convertValuesToHtml(words), mime, encoding, null);
+        resultWebView.loadDataWithBaseURL("file:///android_asset/", result, mime, encoding, null);
         showResultsView();
+
+	}
+
+	private String generateWordNotFoundHtml()
+	{
+		return htmlPageComposer.makeNotFoundPage();
 	}
 	
 	private String convertValuesToHtml(List<Word> words)
 	{
-		HtmlPageComposer pc = new HtmlPageComposer();		
-		return pc.makePage(words);
+		return htmlPageComposer.makePage(words);
 	}
 	
 	class EditorActionListener implements OnEditorActionListener{
@@ -159,18 +168,21 @@ public class SearchFragment extends Fragment
 		{	    	
 	        boolean handled = false;
 	        if (actionId != EditorInfo.IME_ACTION_SEARCH)
-	        	return handled;
-	        
-        	InputMethodManager inputMM = (InputMethodManager) 
-        			getActivity().getSystemService(
-        					Context.INPUT_METHOD_SERVICE);
-            inputMM.hideSoftInputFromWindow(
-            		editText.getApplicationWindowToken(), 
-            			InputMethodManager.HIDE_NOT_ALWAYS);            
-            findAndShowWordDefenition();
+	        	return handled;	        
+        	hideKeyboard();        
+            findAndShowWordDefenition(editText.getText());
             handled = true;
 	        return handled;
 	    }		
+	}
+	
+	private void hideKeyboard()
+	{
+		InputMethodManager inputMM = (InputMethodManager) 
+    			getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMM.hideSoftInputFromWindow(
+        		editText.getApplicationWindowToken(), 
+        			InputMethodManager.HIDE_NOT_ALWAYS);
 	}
 	
 	class EditTextWatcher implements TextWatcher{
@@ -203,8 +215,11 @@ public class SearchFragment extends Fragment
 		@Override
 		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 				long arg3)
-		{			
-			findAndShowWordDefenition();
+		{
+			hideKeyboard();
+			TextView textItem = (TextView) arg1;
+			CharSequence word = textItem.getText();
+			findAndShowWordDefenition(word);			
 		}
 	}
 }

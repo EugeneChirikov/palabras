@@ -20,6 +20,7 @@ public class AvailableDictionaries
 	
 	private AvailableDictionaries(Context context)
 	{
+		knownDictionaries = new ArrayList<Dictionary>();
 		dictsDB = new KnownDictionariesDB(context);
 		pacMan = context.getPackageManager();
 		contentResolver = context.getContentResolver();
@@ -32,12 +33,12 @@ public class AvailableDictionaries
 		return uniqueInstance;
 	}
 	
-	public List<Dictionary> getList()
+	public synchronized List<Dictionary> getList()
 	{
 		return knownDictionaries;
 	}
 	
-	public void refreshList()
+	public synchronized void refreshList()
 	{
 		obtainKnownDictionariesList();
 		List<String> allDicts = obtainInstalledDictionariesList();
@@ -121,7 +122,7 @@ public class AvailableDictionaries
 			}
 	}
 	
-	public List<Word> getWord(String wordSource)
+	public synchronized List<Word> getWord(String wordSource)
 	{
 		List<Word> foundWords = new ArrayList<Word>();
 		Word foundWord = null;
@@ -136,7 +137,8 @@ public class AvailableDictionaries
 		return foundWords;
 	}
 	
-	public List<String> getHints(String startWith) {
+	public synchronized List<String> getHints(String startWith)
+	{
 		List<String> availHints = new ArrayList<String>();
 		List<String> dictHints;
 		for (Dictionary d : knownDictionaries)

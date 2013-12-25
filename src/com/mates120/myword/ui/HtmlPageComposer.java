@@ -1,11 +1,15 @@
 package com.mates120.myword.ui;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import android.util.Log;
 
 import com.mates120.myword.Word;
 
 public class HtmlPageComposer {
-	static String top = "<meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\">\n" + 
+	private static String top = "<meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\">\n" + 
 			"<style>\n" + 
 			"    body\n" + 
 			"    {\n" + 
@@ -23,7 +27,6 @@ public class HtmlPageComposer {
 			"    {\n" + 
 			"        font-weight: bold;\n" + 
 			"        font-size: 130%;\n" + 
-			"        margin-right: 30px;\n" + 
 			"    }\n" + 
 			"\n" + 
 			"    #rounded-corner\n" + 
@@ -84,49 +87,76 @@ public class HtmlPageComposer {
 			"<html>\n" + 
 			"    <body>";
 	
-	static String bottom = "    </body>\n" + 
+	private static String bottom = "    </body>\n" + 
 							"</html>";
 
-	String makePage(List<Word> words)
+	public String makePage(List<Word> words)
 	{
 		StringBuilder page = new StringBuilder();
 		page.append(top);
 		for (Word w: words)
-		{			
+		{
 			String[] wordAndDefenition = splitStarDictValue(w.getValue());
-			String wrappedArticle = wrapArticle(wordAndDefenition[0], w.getDictName(), wordAndDefenition[1]);
+			String defenition = replaceSomeSymbols(wordAndDefenition[1]);
+			Log.d("STARD_PARSER", defenition);
+			String wrappedArticle = wrapArticle(wordAndDefenition[0], w.getDictName(), defenition);
 			page.append(wrappedArticle);
 		}
 		page.append(bottom);
 		return page.toString();
 	}
 	
-	String[] splitStarDictValue(String value)
+	public String makeNotFoundPage()
 	{
-		return value.split("\\r?\\n");
+		return "No such word in any of active dictionaries";
 	}
 	
-	String wrapArticle(String word, String dictName, String defenition)
+	private String[] splitStarDictValue(String value)
+	{
+		String[] splitted = new String[2];
+		Pattern regexpPattern = Pattern.compile("(<k>.+</k>)\\n(.*)", Pattern.DOTALL);
+		Matcher regexpMatcher = regexpPattern.matcher(value);
+		if (!regexpMatcher.find())
+		{
+			splitted[0] = "Sorry, invalid data";
+			splitted[1] = "";
+		}
+		else
+		{
+			splitted[0] = regexpMatcher.group(1);
+			splitted[1] = regexpMatcher.group(2);
+		}
+		return splitted;
+	}
+	
+	private String replaceSomeSymbols(String text)
+	{
+		text = text.replaceAll("((:?\\n)+)", "<br>");
+		text = text.replaceAll("tr>", "em>");
+		return text;
+	}
+	
+	private String wrapArticle(String word, String dictName, String defenition)
 	{
 		String wrapped = "<table id=\"rounded-corner\">"
                          + "<thead>"
                          + "<tr>"
                          + "<th scope=\"col\" class=\"left-corner\"></th>"
                          + "<th scope=\"col\" class=\"rounded-q1\">"                    
-                         + word + "[" + dictName + "]</th>"
+                         + word + " - " + dictName + "</th>"
                          +"<th scope=\"col\" class=\"rounded-q4\"></th>"
                          + "</tr>"
                          + "</thead>"
                          + "<tfoot>"
                          + "<tr>"
-                         + "<td colspan=\"2\" class=\"rounded-foot-left\"><em></em></td>"
-                         + "<td class=\"rounded-foot-right\">&nbsp;</td>"
+                         + "<td colspan=\"2\" class=\"rounded-foot-left\"></td>"
+                         + "<td class=\"rounded-foot-right\"></td>"
                          + "</tr>"
                          + "</tfoot>"
                          + "<tbody>"
                          + "<tr>"
                          + "<td></td>"
-                         + "<td><br>" + defenition + "</td>"
+                         + "<td>" + defenition + "</td>"
                          + "<td></td>"
                          + "</tr>"
                          + "</tbody>"
