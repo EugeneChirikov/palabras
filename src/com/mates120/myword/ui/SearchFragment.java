@@ -29,40 +29,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-/**
- * A fragment representing a list of Items.
- *
- *           
- *       
- */
-
-/*<EditText
-android:id="@+id/editTextSearch"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:hint="@string/enter_word_for_search"
-android:imeOptions="actionSearch"
-android:inputType="text" >
-<requestFocus />
-</EditText>
-
-<ListView
-android:id="@android:id/list"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:dividerHeight="3dp"
-android:showDividers="middle" >
-</ListView>        
-
-<?xml version="1.0" encoding="utf-8"?>
-<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:tools="http://schemas.android.com/tools"
-android:id="@+id/Settings"
-android:layout_width="fill_parent"
-android:layout_height="match_parent"
-android:shrinkColumns="1"
-android:stretchColumns="*"
-tools:context=".SearchFragment" >*/
 
 public class SearchFragment extends Fragment
 {	
@@ -75,43 +41,67 @@ public class SearchFragment extends Fragment
 	private LinearLayout searchLayout;
 	private boolean hintsShown = false;
 	private HtmlPageComposer htmlPageComposer;
+	
+	private ArrayAdapter<String> hintsAdapter;
+	
+	private String webViewContent;
+	private static String webViewContentKey = "web_view_content";
+	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setRetainInstance(true);
+//		setRetainInstance(true);
 		availableDictionaries = AvailableDictionaries.getInstance(this.getActivity());
+		htmlPageComposer = new HtmlPageComposer();
+		hintsAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState)
 	{
-		htmlPageComposer = new HtmlPageComposer();
 		View view = inflater.inflate(R.layout.fragment_search_list, container, false);
-		searchLayout = (LinearLayout)view.findViewById(R.id.Search);		
+		searchLayout = (LinearLayout)view.findViewById(R.id.Search);
 		editText = (EditText) view.findViewById(R.id.editTextSearch);
-		
-		resultWebView = new WebView(getActivity());
-		resultWebView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)); 
+		resultWebView = new WebView(getActivity());		
+		resultWebView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+		searchLayout.addView(resultWebView);
 		hintsList = new ListView(getActivity());
-		
-		editText.setOnEditorActionListener(new EditorActionListener());
-		editText.setOnFocusChangeListener(new OnFocusChangeListener(){
+		hintsList.setOnItemClickListener(new HintSelectListener());
 
-			@Override
-			public void onFocusChange(View arg0, boolean hasFocus) {
-				InputMethodManager inputMM = (InputMethodManager) 
-						getActivity().getSystemService(
-								Context.INPUT_METHOD_SERVICE);
-				inputMM.hideSoftInputFromWindow(
-							editText.getApplicationWindowToken(), 
-                				InputMethodManager.HIDE_NOT_ALWAYS);
-			}
-			
-		});
+		editText.setOnEditorActionListener(new EditorActionListener());
+		fixMalformedKeyboardWhenHiding();
+		restoreWebViewState(savedInstanceState);
 		editText.addTextChangedListener(new EditTextWatcher());
 		return view;
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState)
+	{
+		outState.putString(webViewContentKey, webViewContent);
+	};
+
+	private void restoreWebViewState(Bundle savedInstanceState)
+	{
+		if (savedInstanceState == null)
+			return;
+		webViewContent = savedInstanceState.getString(webViewContentKey);		
+		if (webViewContent == null)
+			return;		
+		loadWebViewContent();		
+	}
+
+	private void fixMalformedKeyboardWhenHiding()
+	{
+		editText.setOnFocusChangeListener(new OnFocusChangeListener(){
+			@Override
+			public void onFocusChange(View arg0, boolean hasFocus)
+			{
+				hideKeyboard();
+			}
+		});
 	}
 	
 	private void showHintsList()
@@ -136,19 +126,22 @@ public class SearchFragment extends Fragment
 	{
         List<Word> words = null;
         words = availableDictionaries.getWord(word.toString());
-        String result;
         if(words.isEmpty())
         {
-        	result = generateWordNotFoundHtml();
+        	webViewContent = generateWordNotFoundHtml();
         }
         else
         {
-        	result = convertValuesToHtml(words);
+        	webViewContent = convertValuesToHtml(words);
             editText.getText().clear();
         }
-        resultWebView.loadDataWithBaseURL("file:///android_asset/", result, mime, encoding, null);
+        loadWebViewContent();
         showResultsView();
-
+	}
+	
+	private void loadWebViewContent()
+	{
+		resultWebView.loadDataWithBaseURL("file:///android_asset/", webViewContent, mime, encoding, null);
 	}
 
 	private String generateWordNotFoundHtml()
@@ -188,14 +181,16 @@ public class SearchFragment extends Fragment
 	class EditTextWatcher implements TextWatcher{
 		
 		@Override
-		public void afterTextChanged(Editable s) {
-			List<String> hints;
-			ArrayAdapter<String> hintsAdapter;
-			hints = availableDictionaries.getHints(editText.getText().toString());
-			hintsAdapter = new ArrayAdapter<String>(getActivity(),
-					android.R.layout.simple_list_item_1, hints);
+		public void afterTextChanged(Editable s)
+		{
+			CharSequence text = editText.getText();
+			if (text.length() == 0)
+				return;
+			List<String> hints = availableDictionaries.getHints(text.toString());
+
+			hintsAdapter.clear();
+			hintsAdapter.addAll(hints);
 			hintsList.setAdapter(hintsAdapter);
-			hintsList.setOnItemClickListener(new HintSelectListener());
 			showHintsList();
 		}
 
@@ -207,7 +202,10 @@ public class SearchFragment extends Fragment
 
 		@Override
 		public void onTextChanged(CharSequence s, int start, int before,
-				int count) {}		
+				int count)
+		{
+			
+		}		
 	}
 	
 	class HintSelectListener implements OnItemClickListener{

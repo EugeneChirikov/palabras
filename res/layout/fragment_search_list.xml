@@ -12,7 +12,6 @@
 		android:hint="@string/enter_word_for_search"
 		android:imeOptions="actionSearch"
 		android:inputType="text" >
-		<requestFocus />
 	</EditText>
     
 </LinearLayout>

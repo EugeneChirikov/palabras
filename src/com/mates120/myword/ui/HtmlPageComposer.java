@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.util.Log;
-
 import com.mates120.myword.Word;
 
 public class HtmlPageComposer {
@@ -98,7 +96,6 @@ public class HtmlPageComposer {
 		{
 			String[] wordAndDefenition = splitStarDictValue(w.getValue());
 			String defenition = replaceSomeSymbols(wordAndDefenition[1]);
-			Log.d("STARD_PARSER", defenition);
 			String wrappedArticle = wrapArticle(wordAndDefenition[0], w.getDictName(), defenition);
 			page.append(wrappedArticle);
 		}
