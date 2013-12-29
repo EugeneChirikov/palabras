@@ -24,17 +24,17 @@ public class SettingsFragment extends ListFragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		availableDictionaries = AvailableDictionaries.getInstance(this.getActivity());
-		dicts = availableDictionaries.getList();
-		mAdapter = new DictionaryArrayAdapter(getActivity(),
-				android.R.id.list, dicts);
-		setListAdapter(mAdapter);
+		mAdapter = new DictionaryArrayAdapter(getActivity(), android.R.id.list);		
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+	{
 		View view = inflater.inflate(R.layout.fragment_settings, container, false);
+		availableDictionaries = AvailableDictionaries.getInstance(this.getActivity());
+		dicts = availableDictionaries.getList();
+		mAdapter.addAll(dicts);
+		setListAdapter(mAdapter);
 		return view;
 	}
 	

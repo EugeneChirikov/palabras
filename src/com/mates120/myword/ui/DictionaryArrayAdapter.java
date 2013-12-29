@@ -1,7 +1,5 @@
 package com.mates120.myword.ui;
 
-import java.util.List;
-
 import com.mates120.myword.Dictionary;
 import com.mates120.myword.R;
 
@@ -17,14 +15,15 @@ public class DictionaryArrayAdapter extends ArrayAdapter<Dictionary>{
 	
 	private Context context;
 
-	public DictionaryArrayAdapter(Context context, 
-			int textViewResourceId, List<Dictionary> dicts){
-		super(context, textViewResourceId, dicts);
+	public DictionaryArrayAdapter(Context context, int textViewResourceId)
+	{
+		super(context, textViewResourceId);
 		this.context = context;
 	}
 	
 	@Override
-	public CheckedTextView getView(int position, View convertView, ViewGroup parent){
+	public CheckedTextView getView(int position, View convertView, ViewGroup parent)
+	{
 		CheckedTextView dictionary = null;
 		Dictionary dict = getItem(position);
 		
@@ -34,10 +33,10 @@ public class DictionaryArrayAdapter extends ArrayAdapter<Dictionary>{
 		if(convertView == null){
 			convertView = mInflater.inflate(R.layout.dict_item, null);
 		}
-		dictionary = (CheckedTextView) convertView;
+		dictionary = (CheckedTextView)convertView;
 		
 		dictionary.setText(dict.getName());
 		dictionary.setChecked(dict.isActive());
-		return (CheckedTextView)convertView;
+		return dictionary;
 	}
 }
