@@ -77,7 +77,8 @@ public class KnownDictionariesDB
 	private Dictionary cursorToDict(Cursor cursor)
 	{
 		Dictionary dict = null;
-		if(cursor != null && cursor.getCount() > 0){
+		if(cursor != null && cursor.getCount() > 0)
+		{
 			dict = new Dictionary();
 			dict.setId(cursor.getLong(0));
 			dict.setName(cursor.getString(1));

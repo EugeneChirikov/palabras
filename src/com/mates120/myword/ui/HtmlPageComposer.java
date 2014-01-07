@@ -4,9 +4,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.content.Context;
+
+import com.mates120.myword.R;
 import com.mates120.myword.Word;
 
-public class HtmlPageComposer {
+public class HtmlPageComposer
+{
 	private static String top = "<meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\">\n" + 
 			"<style>\n" + 
 			"    body\n" + 
@@ -87,7 +91,13 @@ public class HtmlPageComposer {
 	
 	private static String bottom = "    </body>\n" + 
 							"</html>";
+	private Context context;
 
+	public HtmlPageComposer(Context c)
+	{
+		context = c;
+	}
+	
 	public String makePage(List<Word> words)
 	{
 		StringBuilder page = new StringBuilder();
@@ -105,7 +115,7 @@ public class HtmlPageComposer {
 	
 	public String makeNotFoundPage()
 	{
-		return "No such word in any of active dictionaries";
+		return context.getResources().getString(R.string.no_such_word_in_db);
 	}
 	
 	private String[] splitStarDictValue(String value)

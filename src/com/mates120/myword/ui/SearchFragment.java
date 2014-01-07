@@ -47,13 +47,12 @@ public class SearchFragment extends Fragment
 	private String webViewContent;
 	private static String webViewContentKey = "web_view_content";
 	
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 //		setRetainInstance(true);
 		availableDictionaries = AvailableDictionaries.getInstance(this.getActivity());
-		htmlPageComposer = new HtmlPageComposer();
+		htmlPageComposer = new HtmlPageComposer(this.getActivity());
 		hintsAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1);
 	}
 
@@ -68,15 +67,15 @@ public class SearchFragment extends Fragment
 		resultWebView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		searchLayout.addView(resultWebView);
 		hintsList = new ListView(getActivity());
+		
 		hintsList.setOnItemClickListener(new HintSelectListener());
-
 		editText.setOnEditorActionListener(new EditorActionListener());
 		fixMalformedKeyboardWhenHiding();
 		restoreWebViewState(savedInstanceState);
 		editText.addTextChangedListener(new EditTextWatcher());
 		return view;
 	}
-	
+
 	@Override
 	public void onSaveInstanceState(Bundle outState)
 	{

@@ -3,20 +3,23 @@ package com.mates120.myword;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mates120.myword.ui.SettingsFragment;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
 public class AvailableDictionaries
-{   // Implements Singleton pattern (no multithreading yet)
+{
 	private List<Dictionary> knownDictionaries;
 	private KnownDictionariesDB dictsDB;
 	private PackageManager pacMan;
-	ContentResolver contentResolver;
+	private ContentResolver contentResolver;
+	private SettingsFragment settingsFragment;
 	
 	private static final String DICTIONARY_PACKAGE = "com.mates120.dictionary.";
-	private static AvailableDictionaries uniqueInstance;
+	private volatile static AvailableDictionaries uniqueInstance;
 	
 	private AvailableDictionaries(Context context)
 	{
@@ -26,10 +29,23 @@ public class AvailableDictionaries
 		contentResolver = context.getContentResolver();
 	}
 	
-	public static synchronized AvailableDictionaries getInstance(Context context)
+	public synchronized void subscribeSettingsFragment(SettingsFragment sf)
+	{
+		settingsFragment = sf;
+		System.out.println("We subscribe");
+		notifyAll();
+	}
+	
+	public static AvailableDictionaries getInstance(Context context)
 	{
 		if (uniqueInstance == null)
-			uniqueInstance = new AvailableDictionaries(context);
+		{
+			synchronized (AvailableDictionaries.class)
+			{
+				if (uniqueInstance == null)
+					uniqueInstance = new AvailableDictionaries(context);
+			}			
+		}
 		return uniqueInstance;
 	}
 	
@@ -42,8 +58,17 @@ public class AvailableDictionaries
 	{
 		obtainKnownDictionariesList();
 		List<String> allDicts = obtainInstalledDictionariesList();
-		insertNewlyInstalledDictionaries(allDicts);
-		cleanupAlreadyDeletedDictionaries(allDicts);
+		boolean dictsInserted = insertNewlyInstalledDictionaries(allDicts);
+		boolean dictsDeleted = cleanupAlreadyDeletedDictionaries(allDicts);
+/*		if (!dictsInserted && !dictsDeleted)  consider first use/onCreate in activity
+			return;*/
+		while (settingsFragment == null)
+		{
+			try {
+				wait();
+			} catch (InterruptedException e){}
+		}
+		settingsFragment.onDictionariesRefresh();
 	}
 	
 	private void obtainKnownDictionariesList()
@@ -122,7 +147,7 @@ public class AvailableDictionaries
 			}
 	}
 	
-	public synchronized List<Word> getWord(String wordSource)
+	public List<Word> getWord(String wordSource)
 	{
 		List<Word> foundWords = new ArrayList<Word>();
 		Word foundWord = null;
@@ -137,24 +162,18 @@ public class AvailableDictionaries
 		return foundWords;
 	}
 	
-	public synchronized List<String> getHints(String startWith)
+	public List<String> getHints(String startWith)
 	{
-		List<String> availHints = new ArrayList<String>();
+		List<String> totalHints = new ArrayList<String>();
 		List<String> dictHints;
 		for (Dictionary d : knownDictionaries)
 		{
 			if(!d.isActive())
 				continue;
 			dictHints = d.getHints(startWith, contentResolver);
-			if (!dictHints.isEmpty())
-				for (String hint : dictHints) {
-					if (availHints.size() == 20)
-						break;
-					availHints.add(hint);
-				}
-			if (availHints.size() == 20)
-				break;
+			totalHints.addAll(dictHints); // take first 20 in alphabetic order and exclude duplicates later
+			                              // should try to use TreeSet for this
 		}
-		return availHints;
+		return totalHints;
 	}
 }

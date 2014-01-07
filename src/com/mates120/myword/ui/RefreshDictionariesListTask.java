@@ -19,7 +19,10 @@ public class RefreshDictionariesListTask
 		progressDialog = new ProgressDialog(myContext);
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 		progressDialog.setMessage("Checking dictionaries");
+		progressDialog.setCancelable(false);
+		progressDialog.setCanceledOnTouchOutside(false);
 		progressDialog.show();
+		System.out.println("We here");
 		Runnable refreshingTask = refreshDictionariesListTask();
 		Thread refreshingThread = new Thread(refreshingTask);
 		refreshingThread.start();
@@ -45,5 +48,5 @@ public class RefreshDictionariesListTask
 	    		progressDialog.dismiss();
 	    	}
 	    };
-	} 
+	}
 }

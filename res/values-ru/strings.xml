@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MyWord</string>
+    <string name="action_settings">Настройки</string>
+    <string name="checkBt">Проверить</string>
+    <string name="enter_word_for_search">Введите слово для поиска</string>
+    <string name="no_such_word_in_db">Слово не найдено ни в одном из активных словарей</string>
+    <string name="title_activity_activity_search_setting">ActivitySearchSetting</string>
+    <string name="title_activity_activity_main_tabbed">ActivityMainTabbed</string>
+    <string name="search">ИСКАТЬ</string>
+    <string name="settings">НАСТРОЙКИ</string>
+    <string name="add_dictionary">Добавить словарь</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="dict_name">Dictionary name</string>
+    <string name="dictionaries_upper">СЛОВАРИ</string>
+    <string name="style_upper">СТИЛЬ</string>
+    <string name="word_text"></string>
+    <string name="value_text">Value text</string>
+
+</resources>

@@ -14,7 +14,7 @@ public class PlayStore
 	private static final String generalSearch = "market://search?q=";
 	
 	private static final String dictsPackage = "com.mates120.dictionary.";
-	private static final String publisher = "Notes";
+	private static final String publisher = "Eugene Chirikov %26 Victor Kalutskiy";
 
 	private PackageManager pm;
 	private Context myContext;

@@ -15,12 +15,13 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	
 	private SectionsPagerAdapter mSectionsPagerAdapter;
 	private ViewPager mViewPager;
+	public boolean dictsRefreshNeeded = false;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState)
+	{
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the action bar.
@@ -37,7 +38,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
-            public void onPageSelected(int position) {
+            public void onPageSelected(int position)
+            {
                 // When swiping between different app sections, select the corresponding tab.
                 // We can also use ActionBar.Tab#select() to do this if we have a reference to the
                 // Tab.
@@ -47,18 +49,18 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
         // For each of the sections in the app, add a tab to the action bar.
         actionBar.addTab(actionBar.newTab()
-                        .setText("Search")
+                        .setText(getResources().getString(R.string.search))
                         .setTabListener(this));
         actionBar.addTab(actionBar.newTab()
-                        .setText("Settings")
+                        .setText(getResources().getString(R.string.settings))
                         .setTabListener(this));
 	}
-
+	
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
-		new RefreshDictionariesListTask(this);
+		dictsRefreshNeeded = true;		
 	};
 	
 	@Override

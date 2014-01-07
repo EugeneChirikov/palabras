@@ -15,14 +15,20 @@ public class Dictionary
 	private String app;
 	private boolean isActive;
 	
-	private final String[] wordsProjection = new String[]{"_id", "source", "value"};
-	private final String[] hintsProjection = new String[]{"source"};
+	private final String[] wordsProjection = {"_id", "source", "value"};
+	private final String[] hintsProjection = {"source"};
 	private final String wordsSelection =  "source = ?";
 	private final String hintsSelection =  "source like ?";
 	
-	public Dictionary(){}
+	private List<String> hints;
 	
-	public Dictionary(String dictApp, ContentResolver cr){
+	public Dictionary()
+	{
+		hints = new ArrayList<String>();
+	}
+	
+	public Dictionary(String dictApp, ContentResolver cr)
+	{
 		app = dictApp;
 		Uri uri = getProviderUri("words/create");
 		Cursor cursor = cr.query(uri, null, null, null, null);
@@ -30,6 +36,7 @@ public class Dictionary
 		name = cursor.getString(0);
 		cursor.close();
 		isActive = true;
+		hints = new ArrayList<String>();
 	}
 	
 	public long getId(){
@@ -76,19 +83,20 @@ public class Dictionary
 		return foundWord;
 	}
 	
-	public List<String> getHints(String startCharacters, ContentResolver cr) {
-		List<String> hints = new ArrayList<String>();
+	public List<String> getHints(String startCharacters, ContentResolver cr)
+	{
+		hints.clear();
 		String hint;
-		Uri uri = getProviderUri("words");
-		String[] selectionArgs = new String[]{startCharacters + "%"};
-		Cursor cursor = cr.query(uri, hintsProjection, hintsSelection, selectionArgs, null);
+		Uri uri = getProviderUri("words/hints");
+		String[] selectionArgs = {startCharacters + "%"};
+		Cursor cursor = cr.query(uri, hintsProjection, hintsSelection, selectionArgs, "source ASC");
 		cursor.moveToFirst();
-		while(cursor != null && cursor.getCount() > 0) {
+		while(cursor != null && cursor.getCount() > 0)
+		{
 			hint = cursor.getString(0);
 			hints.add(hint);
-			if(cursor.isLast())
+			if(!cursor.moveToNext())
 				break;
-			cursor.moveToNext();
 		}
 		cursor.close();
 		return hints;
@@ -101,9 +109,7 @@ public class Dictionary
 	 */
 	private Uri getProviderUri(String uri_opt)
 	{
-		Uri uri = null;
-		uri = Uri.parse("content://" + PACKAGE + app + ".WordsProvider/" + uri_opt);
-		return uri;
+		return Uri.parse("content://" + PACKAGE + app + ".WordsProvider/" + uri_opt);
 	}
 	
 	private Word cursorToWord(Cursor cursor)
