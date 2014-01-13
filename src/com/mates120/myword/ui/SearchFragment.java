@@ -1,5 +1,7 @@
 package com.mates120.myword.ui;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.mates120.myword.AvailableDictionaries;
@@ -8,6 +10,8 @@ import com.mates120.myword.Word;
 
 import android.support.v4.app.Fragment;
 import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -42,6 +46,9 @@ public class SearchFragment extends Fragment
 	private boolean hintsShown = false;
 	private HtmlPageComposer htmlPageComposer;
 	
+	private Handler uiThreadHandler;
+	private String text;
+	private List<String> hints;
 	private ArrayAdapter<String> hintsAdapter;
 	
 	private String webViewContent;
@@ -53,7 +60,9 @@ public class SearchFragment extends Fragment
 //		setRetainInstance(true);
 		availableDictionaries = AvailableDictionaries.getInstance(this.getActivity());
 		htmlPageComposer = new HtmlPageComposer(this.getActivity());
-		hintsAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1);
+		hintsAdapter = new ArrayAdapter<String>(getActivity(), 
+				android.R.layout.simple_list_item_1);
+		uiThreadHandler = new Handler();
 	}
 
 	@Override
@@ -66,8 +75,7 @@ public class SearchFragment extends Fragment
 		resultWebView = new WebView(getActivity());		
 		resultWebView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		searchLayout.addView(resultWebView);
-		hintsList = new ListView(getActivity());
-		
+		hintsList = new ListView(getActivity());		
 		hintsList.setOnItemClickListener(new HintSelectListener());
 		editText.setOnEditorActionListener(new EditorActionListener());
 		fixMalformedKeyboardWhenHiding();
@@ -178,19 +186,16 @@ public class SearchFragment extends Fragment
 	}
 	
 	class EditTextWatcher implements TextWatcher{
-		
+
 		@Override
 		public void afterTextChanged(Editable s)
 		{
-			CharSequence text = editText.getText();
-			if (text.length() == 0)
-				return;
-			List<String> hints = availableDictionaries.getHints(text.toString());
-
-			hintsAdapter.clear();
-			hintsAdapter.addAll(hints);
-			hintsList.setAdapter(hintsAdapter);
-			showHintsList();
+			text = editText.getText().toString();
+			if (text.length() != 0){
+				GetHintsAsyncTask hintsAsTask = new GetHintsAsyncTask();
+				hintsAsTask.execute();
+				showHintsList();
+			}
 		}
 
 		@Override
@@ -201,12 +206,34 @@ public class SearchFragment extends Fragment
 
 		@Override
 		public void onTextChanged(CharSequence s, int start, int before,
-				int count)
-		{
-			
+				int count){		
 		}		
 	}
+
+	private Runnable updateHintsAdapter(){
+		return new Runnable(){
+			@Override
+			public void run() {
+				hintsAdapter.clear();
+				hintsAdapter.addAll(hints);
+				hintsList.setAdapter(hintsAdapter);
+			}
+		};
+	}
 	
+	class GetHintsAsyncTask extends AsyncTask<Void, 
+	Integer, Void>{
+		
+		@Override
+		protected Void doInBackground(Void... params) {
+			hints = availableDictionaries.getHints(text);
+			uiThreadHandler.post(updateHintsAdapter());
+			cancel(true);
+			return null;
+		}
+		
+	}
+
 	class HintSelectListener implements OnItemClickListener{
 
 		@Override
