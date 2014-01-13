@@ -1,7 +1,5 @@
 package com.mates120.myword.ui;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import com.mates120.myword.AvailableDictionaries;
@@ -18,6 +16,7 @@ import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -27,6 +26,7 @@ import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -38,6 +38,7 @@ public class SearchFragment extends Fragment
 {	
 	private AvailableDictionaries availableDictionaries;
 	private EditText editText;
+	private Button clearButton;
 	private WebView resultWebView;
 	private String mime = "text/html";
 	private String encoding = "utf-8";
@@ -72,6 +73,8 @@ public class SearchFragment extends Fragment
 		View view = inflater.inflate(R.layout.fragment_search_list, container, false);
 		searchLayout = (LinearLayout)view.findViewById(R.id.Search);
 		editText = (EditText) view.findViewById(R.id.editTextSearch);
+		clearButton = (Button) view.findViewById(R.id.clearTextButton);
+		clearButton.setOnClickListener(new ClearOnClickListener());
 		resultWebView = new WebView(getActivity());		
 		resultWebView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		searchLayout.addView(resultWebView);
@@ -82,6 +85,15 @@ public class SearchFragment extends Fragment
 		restoreWebViewState(savedInstanceState);
 		editText.addTextChangedListener(new EditTextWatcher());
 		return view;
+	}
+	
+	class ClearOnClickListener implements OnClickListener{
+
+		@Override
+		public void onClick(View v) {
+			editText.setText("");
+		}
+		
 	}
 
 	@Override
