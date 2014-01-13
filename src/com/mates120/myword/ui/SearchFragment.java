@@ -9,7 +9,6 @@ import com.mates120.myword.Word;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -47,13 +46,13 @@ public class SearchFragment extends Fragment
 	private boolean hintsShown = false;
 	private HtmlPageComposer htmlPageComposer;
 	
-	private Handler uiThreadHandler;
 	private String text;
 	private List<String> hints;
 	private ArrayAdapter<String> hintsAdapter;
 	
 	private String webViewContent;
 	private static String webViewContentKey = "web_view_content";
+	private String lastText = null;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -63,7 +62,6 @@ public class SearchFragment extends Fragment
 		htmlPageComposer = new HtmlPageComposer(this.getActivity());
 		hintsAdapter = new ArrayAdapter<String>(getActivity(), 
 				android.R.layout.simple_list_item_1);
-		uiThreadHandler = new Handler();
 	}
 
 	@Override
@@ -181,7 +179,9 @@ public class SearchFragment extends Fragment
 	        boolean handled = false;
 	        if (actionId != EditorInfo.IME_ACTION_SEARCH)
 	        	return handled;	        
-        	hideKeyboard();        
+        	hideKeyboard();
+        	CharSequence word = editText.getText();
+			lastText = word.toString();
             findAndShowWordDefenition(editText.getText());
             handled = true;
 	        return handled;
@@ -221,28 +221,26 @@ public class SearchFragment extends Fragment
 				int count){		
 		}		
 	}
-
-	private Runnable updateHintsAdapter(){
-		return new Runnable(){
-			@Override
-			public void run() {
-				hintsAdapter.clear();
-				hintsAdapter.addAll(hints);
-				hintsList.setAdapter(hintsAdapter);
-			}
-		};
-	}
 	
 	class GetHintsAsyncTask extends AsyncTask<Void, 
 	Integer, Void>{
-		
+
+		@Override
+		protected void onPostExecute(Void result) {
+			hintsAdapter.clear();
+			hintsAdapter.addAll(hints);
+			hintsList.setAdapter(hintsAdapter);
+			cancel(true);
+			super.onPostExecute(result);
+		}
+
 		@Override
 		protected Void doInBackground(Void... params) {
 			hints = availableDictionaries.getHints(text);
-			uiThreadHandler.post(updateHintsAdapter());
-			cancel(true);
 			return null;
 		}
+		
+		
 		
 	}
 
@@ -250,12 +248,22 @@ public class SearchFragment extends Fragment
 
 		@Override
 		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
-				long arg3)
-		{
+				long arg3) {
 			hideKeyboard();
 			TextView textItem = (TextView) arg1;
 			CharSequence word = textItem.getText();
+			lastText = word.toString();
 			findAndShowWordDefenition(word);			
+		}
+	}
+	
+	public boolean backToLastHints(){
+		if(lastText != null){
+			editText.setText(lastText);
+			return true;
+		}
+		else {
+			return false;
 		}
 	}
 }
