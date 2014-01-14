@@ -36,6 +36,7 @@ import android.widget.TextView.OnEditorActionListener;
 public class SearchFragment extends Fragment
 {	
 	private AvailableDictionaries availableDictionaries;
+	private View view;
 	private EditText editText;
 	private Button clearButton;
 	private WebView resultWebView;
@@ -51,8 +52,7 @@ public class SearchFragment extends Fragment
 	private ArrayAdapter<String> hintsAdapter;
 	
 	private String webViewContent;
-	private static String webViewContentKey = "web_view_content";
-	private String lastText = null;
+	private static final String webViewContentKey = "web_view_content";
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -68,7 +68,7 @@ public class SearchFragment extends Fragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState)
 	{
-		View view = inflater.inflate(R.layout.fragment_search_list, container, false);
+		view = inflater.inflate(R.layout.fragment_search_list, container, false);
 		searchLayout = (LinearLayout)view.findViewById(R.id.Search);
 		editText = (EditText) view.findViewById(R.id.editTextSearch);
 		clearButton = (Button) view.findViewById(R.id.clearTextButton);
@@ -81,7 +81,14 @@ public class SearchFragment extends Fragment
 		editText.setOnEditorActionListener(new EditorActionListener());
 		fixMalformedKeyboardWhenHiding();
 		restoreWebViewState(savedInstanceState);
+		editText.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showHintsList();
+			}
+		});
 		editText.addTextChangedListener(new EditTextWatcher());
+		tryIfLandscape();
 		return view;
 	}
 	
@@ -89,7 +96,7 @@ public class SearchFragment extends Fragment
 
 		@Override
 		public void onClick(View v) {
-			editText.setText("");
+			editText.getText().clear();
 		}
 		
 	}
@@ -107,7 +114,8 @@ public class SearchFragment extends Fragment
 		webViewContent = savedInstanceState.getString(webViewContentKey);		
 		if (webViewContent == null)
 			return;		
-		loadWebViewContent();		
+		loadWebViewContent();
+		tryIfLandscape();
 	}
 
 	private void fixMalformedKeyboardWhenHiding()
@@ -126,7 +134,8 @@ public class SearchFragment extends Fragment
 		if (hintsShown == true)
 			return;
 		searchLayout.removeView(resultWebView);
-		searchLayout.addView(hintsList);
+		if(hintsList.getParent() == null)
+			searchLayout.addView(hintsList);
 		hintsShown = true;
 	}
 	
@@ -134,8 +143,16 @@ public class SearchFragment extends Fragment
 	{
 		if (hintsShown == false)
 			return;
-		searchLayout.removeView(hintsList);
-		searchLayout.addView(resultWebView);
+		if(resultWebView.getParent() != null)
+			((LinearLayout)resultWebView.getParent()).removeView(resultWebView);
+		LinearLayout webHorizLayout = (LinearLayout)
+				view.findViewById(R.id.webViewLinearLayout);
+		if(webHorizLayout != null){
+			webHorizLayout.addView(resultWebView);
+		}else{
+			searchLayout.removeView(hintsList);
+			searchLayout.addView(resultWebView);
+		}
 		hintsShown = false;
 	}
 	
@@ -143,15 +160,8 @@ public class SearchFragment extends Fragment
 	{
         List<Word> words = null;
         words = availableDictionaries.getWord(word.toString());
-        if(words.isEmpty())
-        {
-        	webViewContent = generateWordNotFoundHtml();
-        }
-        else
-        {
-        	webViewContent = convertValuesToHtml(words);
-            editText.getText().clear();
-        }
+        webViewContent = (words.isEmpty())?
+        			generateWordNotFoundHtml():convertValuesToHtml(words);
         loadWebViewContent();
         showResultsView();
 	}
@@ -180,8 +190,6 @@ public class SearchFragment extends Fragment
 	        if (actionId != EditorInfo.IME_ACTION_SEARCH)
 	        	return handled;	        
         	hideKeyboard();
-        	CharSequence word = editText.getText();
-			lastText = word.toString();
             findAndShowWordDefenition(editText.getText());
             handled = true;
 	        return handled;
@@ -213,7 +221,6 @@ public class SearchFragment extends Fragment
 		@Override
 		public void beforeTextChanged(CharSequence s, int start, int count,
 				int after) {
-			// TODO Auto-generated method stub
 		}
 
 		@Override
@@ -251,19 +258,22 @@ public class SearchFragment extends Fragment
 				long arg3) {
 			hideKeyboard();
 			TextView textItem = (TextView) arg1;
-			CharSequence word = textItem.getText();
-			lastText = word.toString();
-			findAndShowWordDefenition(word);			
+			findAndShowWordDefenition(textItem.getText());			
 		}
 	}
 	
-	public boolean backToLastHints(){
-		if(lastText != null){
-			editText.setText(lastText);
-			return true;
-		}
-		else {
-			return false;
-		}
+	private void tryIfLandscape(){
+		LinearLayout webHorizLayout = (LinearLayout)
+				view.findViewById(R.id.webViewLinearLayout);
+		if(webHorizLayout == null)
+			return;
+		if(hintsList.getParent() != null)
+			((LinearLayout)hintsList.getParent()).removeView(hintsList);
+		if(resultWebView.getParent() != null)
+			((LinearLayout)resultWebView.getParent()).removeView(resultWebView);
+		if(hintsList != null)
+			searchLayout.addView(hintsList);
+		if(resultWebView != null)
+			webHorizLayout.addView(resultWebView);
 	}
 }
