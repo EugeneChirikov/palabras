@@ -1,6 +1,6 @@
 package com.mates120.myword.ui;
 
-
+import com.mates120.myword.PlayStore;
 import com.mates120.myword.R;
 
 import android.app.ActionBar;
@@ -9,17 +9,19 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
+import android.view.View;
 
 public class MainActivity extends FragmentActivity implements ActionBar.TabListener{
 	
 	private SectionsPagerAdapter mSectionsPagerAdapter;
 	private ViewPager mViewPager;
+	public boolean dictsRefreshNeeded = false;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState)
+	{
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the action bar.
@@ -36,7 +38,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
-            public void onPageSelected(int position) {
+            public void onPageSelected(int position)
+            {
                 // When swiping between different app sections, select the corresponding tab.
                 // We can also use ActionBar.Tab#select() to do this if we have a reference to the
                 // Tab.
@@ -46,12 +49,19 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
         // For each of the sections in the app, add a tab to the action bar.
         actionBar.addTab(actionBar.newTab()
-                        .setText("Search")
+                        .setText(getResources().getString(R.string.search))
                         .setTabListener(this));
         actionBar.addTab(actionBar.newTab()
-                        .setText("Settings")
+                        .setText(getResources().getString(R.string.settings))
                         .setTabListener(this));
 	}
+	
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+		dictsRefreshNeeded = true;		
+	};
 	
 	@Override
     public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
@@ -70,7 +80,12 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+//		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+	
+	public void addDictionary(View view)
+	{
+		new PlayStore(this).findDictionaries();
 	}
 }

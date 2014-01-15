@@ -5,8 +5,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
-	private SearchFragment searchFragment = new SearchFragment();
-	private SettingsFragment settingsFrament = new SettingsFragment();
+	private Fragment searchFragment = new SearchFragment();
+	private Fragment settingsFrament = new SettingsFragment();
 	
     public SectionsPagerAdapter(FragmentManager fm){
         super(fm);
