@@ -37,7 +37,6 @@ import android.widget.TextView.OnEditorActionListener;
 public class SearchFragment extends Fragment
 {	
 	private AvailableDictionaries availableDictionaries;
-	private View view;
 	
 	private EditText editText;
 	private String editContent;
@@ -49,6 +48,7 @@ public class SearchFragment extends Fragment
 	private String encoding = "utf-8";
 	private ListView hintsList;
 	private LinearLayout searchLayout;
+	private LinearLayout webHorizLayout;
 	private boolean hintsShown = false;
 	private HtmlPageComposer htmlPageComposer;
 	
@@ -63,7 +63,6 @@ public class SearchFragment extends Fragment
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		setRetainInstance(true);
 		availableDictionaries = AvailableDictionaries.getInstance(this.getActivity());
 		htmlPageComposer = new HtmlPageComposer(this.getActivity());
 		hintsAdapter = new ArrayAdapter<String>(getActivity(), 
@@ -74,20 +73,24 @@ public class SearchFragment extends Fragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState)
 	{
-		view = inflater.inflate(R.layout.fragment_search_list, container, false);
+		View view = inflater.inflate(R.layout.fragment_search_list, container, false);
 		searchLayout = (LinearLayout)view.findViewById(R.id.Search);
+		webHorizLayout = (LinearLayout)view.findViewById(R.id.webViewLinearLayout);
 		editText = (EditText) view.findViewById(R.id.editTextSearch);
 		clearButton = (Button) view.findViewById(R.id.clearTextButton);
-		clearButton.setOnClickListener(new ClearOnClickListener());
+		clearButton.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				editText.getText().clear();
+			}
+		});
 		resultWebView = new WebView(getActivity());		
-		resultWebView.setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		searchLayout.addView(resultWebView);
+		resultWebView.setLayoutParams(new ViewGroup.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		hintsList = new ListView(getActivity());		
 		hintsList.setOnItemClickListener(new HintSelectListener());
 		editText.setOnEditorActionListener(new EditorActionListener());
-		fixMalformedKeyboardWhenHiding();
-		restoreWebViewState(savedInstanceState);
-		restoreHintsState(savedInstanceState);
+		editText.setOnFocusChangeListener(new SearchLineFocusChangeListener());
 		editText.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -95,17 +98,20 @@ public class SearchFragment extends Fragment
 			}
 		});
 		editText.addTextChangedListener(new EditTextWatcher());
-		tryIfLandscape();
+		restoreWebViewState(savedInstanceState);
+		restoreHintsState(savedInstanceState);
+		tryIfLandspace();
 		return view;
 	}
 	
-	class ClearOnClickListener implements OnClickListener{
-
+	class SearchLineFocusChangeListener implements OnFocusChangeListener{
 		@Override
-		public void onClick(View v) {
-			editText.getText().clear();
+		public void onFocusChange(View arg0, boolean hasFocus)
+		{
+			hideKeyboard();
+			if(hasFocus)
+				showHintsList();
 		}
-		
 	}
 
 	@Override
@@ -113,7 +119,7 @@ public class SearchFragment extends Fragment
 	{
 		outState.putString(webViewContentKey, webViewContent);
 		outState.putString(editContentKey, editText.getText().toString());
-		outState.putStringArrayList(hintsContentKey, (ArrayList)hints);
+		outState.putStringArrayList(hintsContentKey, (ArrayList<String>) hints);
 	};
 
 	private void restoreWebViewState(Bundle savedInstanceState)
@@ -124,7 +130,7 @@ public class SearchFragment extends Fragment
 		if (webViewContent == null)
 			return;		
 		loadWebViewContent();
-		tryIfLandscape();
+		tryIfLandspace();
 	}
 
 	private void restoreHintsState(Bundle savedInstanceState)
@@ -136,17 +142,6 @@ public class SearchFragment extends Fragment
 		if (hints == null)
 			return;
 		updateHintsAdapterFromHintsList();
-	}
-	
-	private void fixMalformedKeyboardWhenHiding()
-	{
-		editText.setOnFocusChangeListener(new OnFocusChangeListener(){
-			@Override
-			public void onFocusChange(View arg0, boolean hasFocus)
-			{
-				hideKeyboard();
-			}
-		});
 	}
 	
 	private void showHintsList()
@@ -165,8 +160,6 @@ public class SearchFragment extends Fragment
 			return;
 		if(resultWebView.getParent() != null)
 			((LinearLayout)resultWebView.getParent()).removeView(resultWebView);
-		LinearLayout webHorizLayout = (LinearLayout)
-				view.findViewById(R.id.webViewLinearLayout);
 		if(webHorizLayout != null){
 			webHorizLayout.addView(resultWebView);
 		}else{
@@ -234,7 +227,6 @@ public class SearchFragment extends Fragment
 	
 	class EditTextWatcher implements TextWatcher
 	{
-
 		@Override
 		public void afterTextChanged(Editable s)
 		{
@@ -291,10 +283,8 @@ public class SearchFragment extends Fragment
 		}
 	}
 	
-	private void tryIfLandscape(){
-		LinearLayout webHorizLayout = (LinearLayout)
-				view.findViewById(R.id.webViewLinearLayout);
-		if(webHorizLayout == null)
+	private void tryIfLandspace(){
+		if (webHorizLayout == null) 
 			return;
 		if(hintsList.getParent() != null)
 			((LinearLayout)hintsList.getParent()).removeView(hintsList);
