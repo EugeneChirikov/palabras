@@ -1,5 +1,6 @@
 package com.mates120.myword.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.mates120.myword.AvailableDictionaries;
@@ -37,7 +38,11 @@ public class SearchFragment extends Fragment
 {	
 	private AvailableDictionaries availableDictionaries;
 	private View view;
+	
 	private EditText editText;
+	private String editContent;
+	private static final String editContentKey = "edit_content";
+	
 	private Button clearButton;
 	private WebView resultWebView;
 	private String mime = "text/html";
@@ -49,6 +54,7 @@ public class SearchFragment extends Fragment
 	
 	private String text;
 	private List<String> hints;
+	private static final String hintsContentKey = "hints_content";
 	private ArrayAdapter<String> hintsAdapter;
 	
 	private String webViewContent;
@@ -81,6 +87,7 @@ public class SearchFragment extends Fragment
 		editText.setOnEditorActionListener(new EditorActionListener());
 		fixMalformedKeyboardWhenHiding();
 		restoreWebViewState(savedInstanceState);
+		restoreHintsState(savedInstanceState);
 		editText.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -105,6 +112,8 @@ public class SearchFragment extends Fragment
 	public void onSaveInstanceState(Bundle outState)
 	{
 		outState.putString(webViewContentKey, webViewContent);
+		outState.putString(editContentKey, editText.getText().toString());
+		outState.putStringArrayList(hintsContentKey, (ArrayList)hints);
 	};
 
 	private void restoreWebViewState(Bundle savedInstanceState)
@@ -118,6 +127,17 @@ public class SearchFragment extends Fragment
 		tryIfLandscape();
 	}
 
+	private void restoreHintsState(Bundle savedInstanceState)
+	{
+		if (savedInstanceState == null)
+			return;
+		editContent = savedInstanceState.getString(editContentKey);
+		hints = savedInstanceState.getStringArrayList(hintsContentKey);
+		if (hints == null)
+			return;
+		updateHintsAdapterFromHintsList();
+	}
+	
 	private void fixMalformedKeyboardWhenHiding()
 	{
 		editText.setOnFocusChangeListener(new OnFocusChangeListener(){
@@ -196,6 +216,13 @@ public class SearchFragment extends Fragment
 	    }		
 	}
 	
+	private void updateHintsAdapterFromHintsList()
+	{
+		hintsAdapter.clear();
+		hintsAdapter.addAll(hints);
+		hintsList.setAdapter(hintsAdapter);
+	}
+	
 	private void hideKeyboard()
 	{
 		InputMethodManager inputMM = (InputMethodManager) 
@@ -205,13 +232,20 @@ public class SearchFragment extends Fragment
         			InputMethodManager.HIDE_NOT_ALWAYS);
 	}
 	
-	class EditTextWatcher implements TextWatcher{
+	class EditTextWatcher implements TextWatcher
+	{
 
 		@Override
 		public void afterTextChanged(Editable s)
 		{
 			text = editText.getText().toString();
-			if (text.length() != 0){
+			if (text.length() != 0)
+			{
+				if (text.equals(editContent)) //hints were updated from bundle
+				{
+					editContent = null;
+					return;
+				}
 				GetHintsAsyncTask hintsAsTask = new GetHintsAsyncTask();
 				hintsAsTask.execute();
 				showHintsList();
@@ -234,9 +268,7 @@ public class SearchFragment extends Fragment
 
 		@Override
 		protected void onPostExecute(Void result) {
-			hintsAdapter.clear();
-			hintsAdapter.addAll(hints);
-			hintsList.setAdapter(hintsAdapter);
+			updateHintsAdapterFromHintsList();
 			cancel(true);
 			super.onPostExecute(result);
 		}
@@ -245,10 +277,7 @@ public class SearchFragment extends Fragment
 		protected Void doInBackground(Void... params) {
 			hints = availableDictionaries.getHints(text);
 			return null;
-		}
-		
-		
-		
+		}		
 	}
 
 	class HintSelectListener implements OnItemClickListener{
