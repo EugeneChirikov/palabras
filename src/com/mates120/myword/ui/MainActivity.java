@@ -17,6 +17,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	private ViewPager mViewPager;
 	public boolean dictsRefreshNeeded = false;
 
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
@@ -54,7 +55,7 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         actionBar.addTab(actionBar.newTab()
                         .setText(getResources().getString(R.string.settings))
                         .setTabListener(this));
-	}
+    }
 	
 	@Override
 	protected void onResume()
@@ -88,4 +89,14 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 	{
 		new PlayStore(this).findDictionaries();
 	}
+
+	@Override
+	public void onBackPressed() {
+		final SearchFragment searchFragment = (SearchFragment)
+				mSectionsPagerAdapter.getItem(0);
+		if (!searchFragment.shouldCloseOnBack())
+			super.onBackPressed();
+	}
+	
+	
 }

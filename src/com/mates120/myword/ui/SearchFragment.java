@@ -34,8 +34,8 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 
-public class SearchFragment extends Fragment
-{	
+public class SearchFragment extends Fragment {
+	
 	private AvailableDictionaries availableDictionaries;
 	
 	private EditText editText;
@@ -49,7 +49,7 @@ public class SearchFragment extends Fragment
 	private ListView hintsList;
 	private LinearLayout searchLayout;
 	private LinearLayout webHorizLayout;
-	private boolean hintsShown = false;
+	private boolean hintsShown = true;
 	private HtmlPageComposer htmlPageComposer;
 	
 	private String text;
@@ -146,8 +146,6 @@ public class SearchFragment extends Fragment
 	
 	private void showHintsList()
 	{
-		if (hintsShown == true)
-			return;
 		searchLayout.removeView(resultWebView);
 		if(hintsList.getParent() == null)
 			searchLayout.addView(hintsList);
@@ -162,11 +160,12 @@ public class SearchFragment extends Fragment
 			((LinearLayout)resultWebView.getParent()).removeView(resultWebView);
 		if(webHorizLayout != null){
 			webHorizLayout.addView(resultWebView);
+			hintsShown = true;
 		}else{
 			searchLayout.removeView(hintsList);
 			searchLayout.addView(resultWebView);
+			hintsShown = false;
 		}
-		hintsShown = false;
 	}
 	
 	private void findAndShowWordDefenition(CharSequence word)
@@ -284,7 +283,7 @@ public class SearchFragment extends Fragment
 	}
 	
 	private void tryIfLandspace(){
-		if (webHorizLayout == null) 
+		if (webHorizLayout == null)
 			return;
 		if(hintsList.getParent() != null)
 			((LinearLayout)hintsList.getParent()).removeView(hintsList);
@@ -294,5 +293,13 @@ public class SearchFragment extends Fragment
 			searchLayout.addView(hintsList);
 		if(resultWebView != null)
 			webHorizLayout.addView(resultWebView);
+		hintsShown = true;
+	}
+
+	public boolean shouldCloseOnBack() {
+		if (hintsShown)
+			return false;
+		showHintsList();
+		return true;
 	}
 }
