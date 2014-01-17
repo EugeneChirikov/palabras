@@ -50,6 +50,7 @@ public class SearchFragment extends Fragment {
 	private LinearLayout searchLayout;
 	private LinearLayout webHorizLayout;
 	private boolean hintsShown = true;
+	private boolean webShown = false;
 	private HtmlPageComposer htmlPageComposer;
 	
 	private String text;
@@ -109,8 +110,8 @@ public class SearchFragment extends Fragment {
 		public void onFocusChange(View arg0, boolean hasFocus)
 		{
 			hideKeyboard();
-			if(hasFocus)
-				showHintsList();
+//			if(hasFocus && !webShown)
+//				showHintsList();
 		}
 	}
 
@@ -166,6 +167,7 @@ public class SearchFragment extends Fragment {
 			searchLayout.addView(resultWebView);
 			hintsShown = false;
 		}
+		webShown = true;
 	}
 	
 	private void findAndShowWordDefenition(CharSequence word)
@@ -283,8 +285,11 @@ public class SearchFragment extends Fragment {
 	}
 	
 	private void tryIfLandspace(){
-		if (webHorizLayout == null)
+		if (webHorizLayout == null){
+			if(webShown)
+				showResultsView();
 			return;
+		}
 		if(hintsList.getParent() != null)
 			((LinearLayout)hintsList.getParent()).removeView(hintsList);
 		if(resultWebView.getParent() != null)
