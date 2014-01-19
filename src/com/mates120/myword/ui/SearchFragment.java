@@ -50,7 +50,6 @@ public class SearchFragment extends Fragment {
 	private LinearLayout searchLayout;
 	private LinearLayout webHorizLayout;
 	private boolean hintsShown = true;
-	private boolean webShown = false;
 	private HtmlPageComposer htmlPageComposer;
 	
 	private String text;
@@ -101,7 +100,7 @@ public class SearchFragment extends Fragment {
 		editText.addTextChangedListener(new EditTextWatcher());
 		restoreWebViewState(savedInstanceState);
 		restoreHintsState(savedInstanceState);
-		tryIfLandspace();
+		tryIfLandscape();
 		return view;
 	}
 	
@@ -110,7 +109,7 @@ public class SearchFragment extends Fragment {
 		public void onFocusChange(View arg0, boolean hasFocus)
 		{
 			hideKeyboard();
-//			if(hasFocus && !webShown)
+//			if(hasFocus)
 //				showHintsList();
 		}
 	}
@@ -131,7 +130,6 @@ public class SearchFragment extends Fragment {
 		if (webViewContent == null)
 			return;		
 		loadWebViewContent();
-		tryIfLandspace();
 	}
 
 	private void restoreHintsState(Bundle savedInstanceState)
@@ -139,6 +137,7 @@ public class SearchFragment extends Fragment {
 		if (savedInstanceState == null)
 			return;
 		editContent = savedInstanceState.getString(editContentKey);
+		editText.setText(editContent);
 		hints = savedInstanceState.getStringArrayList(hintsContentKey);
 		if (hints == null)
 			return;
@@ -167,7 +166,7 @@ public class SearchFragment extends Fragment {
 			searchLayout.addView(resultWebView);
 			hintsShown = false;
 		}
-		webShown = true;
+		hideKeyboard();
 	}
 	
 	private void findAndShowWordDefenition(CharSequence word)
@@ -236,7 +235,7 @@ public class SearchFragment extends Fragment {
 			{
 				if (text.equals(editContent)) //hints were updated from bundle
 				{
-					editContent = null;
+//					editContent = null;
 					return;
 				}
 				GetHintsAsyncTask hintsAsTask = new GetHintsAsyncTask();
@@ -284,10 +283,12 @@ public class SearchFragment extends Fragment {
 		}
 	}
 	
-	private void tryIfLandspace(){
-		if (webHorizLayout == null){
-			if(webShown)
+	private void tryIfLandscape(){
+		if (!isInLandscape()){
+			if(!hintsShown)
 				showResultsView();
+			else
+				showHintsList();
 			return;
 		}
 		if(hintsList.getParent() != null)
@@ -306,5 +307,28 @@ public class SearchFragment extends Fragment {
 			return false;
 		showHintsList();
 		return true;
+	}
+	
+	private boolean isInLandscape(){
+		return webHorizLayout != null;
+	}
+	
+	private void setHintsLastView(){
+		resultWebView.setTag(false);
+		hintsList.setTag(true);
+	}
+	
+	private void setWebLastView(){
+		hintsList.setTag(false);
+		resultWebView.setTag(true);
+	}
+	
+	private View lastShown(){
+		View lastShown = null;
+		if((Boolean) hintsList.getTag())
+			lastShown = hintsList;
+		if((Boolean) resultWebView.getTag())
+			lastShown = resultWebView;
+		return lastShown;
 	}
 }

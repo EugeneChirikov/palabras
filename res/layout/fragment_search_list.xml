@@ -16,8 +16,10 @@
 			android:layout_height="wrap_content"
 			android:hint="@string/enter_word_for_search"
 			android:imeOptions="actionSearch"
-			android:inputType="text" >
+			android:inputType="text"
+			android:descendantFocusability="beforeDescendants" >
 		</EditText>
+		
 		<Button
 	        android:id="@+id/clearTextButton"      
 	        android:layout_width="25dp"
