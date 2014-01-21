@@ -124,8 +124,6 @@ public class SearchFragment extends Fragment{
 		public void onFocusChange(View arg0, boolean hasFocus)
 		{
 			hideKeyboard();
-//			if(hasFocus)
-//				showHintsList();
 		}
 	}
 
