@@ -37,7 +37,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 
-public class SearchFragment extends Fragment {
+public class SearchFragment extends Fragment{
 	
 	private AvailableDictionaries availableDictionaries;
 	
@@ -65,7 +65,6 @@ public class SearchFragment extends Fragment {
 	private ActiveViewState activeViewState;
 	private static final String activeStateKey = "ACTIVE_VIEW";
 	
-	private OnActiveViewListener mListener;	
 		
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -123,24 +122,8 @@ public class SearchFragment extends Fragment {
 		outState.putStringArrayList(hintsContentKey, (ArrayList<String>) hints);
 	};
 	
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		try{
-			mListener = (OnActiveViewListener) activity;
-		}catch(ClassCastException e){
-			throw new ClassCastException(activity.toString() 
-					+ " must implement OnActiveViewListener");
-		}
-	}
-
-	public interface OnActiveViewListener {
-        public void onActiveViewChanged(ActiveViewState activeViewState);
-    }
-	
 	private void activeViewSateChanged(ActiveViewState newState){
 		activeViewState = newState;
-		mListener.onActiveViewChanged(newState);
 	}
 	
 	class SearchLineFocusChangeListener implements OnFocusChangeListener{
@@ -356,5 +339,14 @@ public class SearchFragment extends Fragment {
 	
 	public void showLastHints(){
 		showHintsList();
+	}
+
+	public boolean onBackShouldClose() {
+		boolean shouldClose = true;
+		if(!isInLandscape() && activeViewState == ActiveViewState.WEB){
+			showHintsList();
+			shouldClose = false;
+		}
+		return shouldClose;
 	}
 }

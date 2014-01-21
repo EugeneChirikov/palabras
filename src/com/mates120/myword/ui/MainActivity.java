@@ -6,19 +6,19 @@ import com.mates120.myword.R;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.DisplayMetrics;
 import android.view.View;
 
 public class MainActivity extends FragmentActivity 
-		implements ActionBar.TabListener, SearchFragment.OnActiveViewListener{
+		implements ActionBar.TabListener{
 	
 	private SectionsPagerAdapter mSectionsPagerAdapter;
 	private ViewPager mViewPager;
 	public boolean dictsRefreshNeeded = false;
 	
-	private ActiveViewState searchActiveView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -27,7 +27,7 @@ public class MainActivity extends FragmentActivity
         setContentView(R.layout.activity_main);
         mSectionsPagerAdapter = new SectionsPagerAdapter(
         		getSupportFragmentManager());
-
+        
         // Set up the action bar.
         final ActionBar actionBar = getActionBar();
 
@@ -81,10 +81,6 @@ public class MainActivity extends FragmentActivity
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
 
-	public interface OnBackListener{
-		public void onBackPressed();
-	}
-	
 	public void addDictionary(View view)
 	{
 		new PlayStore(this).findDictionaries();
@@ -92,24 +88,15 @@ public class MainActivity extends FragmentActivity
 
 	@Override
 	public void onBackPressed() {
-		if (isInLandscape() || searchActiveView != ActiveViewState.WEB)
+		SearchFragment searchFragment = (SearchFragment) 
+				findFragmentByPosition(0);
+		if (searchFragment.onBackShouldClose())
 			super.onBackPressed();
-		else{
-			((SearchFragment)
-					getSupportFragmentManager().findFragmentByTag(searchTag))
-					.showLastHints();
-		}
 	}
-	private boolean isInLandscape(){
-		DisplayMetrics outMetrics = new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(outMetrics);
-		int width = outMetrics.widthPixels;
-		int height = outMetrics.heightPixels;
-		return (width > height);
-	}
-
-	@Override
-	public void onActiveViewChanged(ActiveViewState activeViewState) {
-		searchActiveView = activeViewState;
-	}	
+	
+	 private Fragment findFragmentByPosition(int position) {
+	        return getSupportFragmentManager().findFragmentByTag(
+	                "android:switcher:" + mViewPager.getId() + ":"
+	                        + mSectionsPagerAdapter.getItemId(position));
+	    }
 }
