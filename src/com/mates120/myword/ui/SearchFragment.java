@@ -8,14 +8,12 @@ import com.mates120.myword.R;
 import com.mates120.myword.Word;
 
 import android.support.v4.app.Fragment;
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -104,7 +102,7 @@ public class SearchFragment extends Fragment{
 			}
 		});
 		editText.addTextChangedListener(new EditTextWatcher());
-		activeViewSateChanged(ActiveViewState.NONE);
+		activeViewState = ActiveViewState.NONE;
 		restoreWebViewState(savedInstanceState);
 		restoreHintsState(savedInstanceState);
 		restoreActiveViewState(savedInstanceState);
@@ -115,16 +113,11 @@ public class SearchFragment extends Fragment{
 	@Override
 	public void onSaveInstanceState(Bundle outState)
 	{
-		Log.d("ACTIVE_STATE_SAVE", activeViewState.toString());
 		outState.putString(activeStateKey, activeViewState.name());
 		outState.putString(webViewContentKey, webViewContent);
 		outState.putString(editContentKey, editText.getText().toString());
 		outState.putStringArrayList(hintsContentKey, (ArrayList<String>) hints);
 	};
-	
-	private void activeViewSateChanged(ActiveViewState newState){
-		activeViewState = newState;
-	}
 	
 	class SearchLineFocusChangeListener implements OnFocusChangeListener{
 		@Override
@@ -161,9 +154,8 @@ public class SearchFragment extends Fragment{
 	private void restoreActiveViewState(Bundle savedInstanceState){
 		if (savedInstanceState == null)
 			return;
-		activeViewSateChanged(ActiveViewState.valueOf(
-				savedInstanceState.getString(activeStateKey)));
-		Log.d("ACTIVE_STATE_RESTORED", activeViewState.toString());
+		activeViewState = ActiveViewState.valueOf(
+				savedInstanceState.getString(activeStateKey));
 	}
 	
 	private void showHintsList()
@@ -171,8 +163,7 @@ public class SearchFragment extends Fragment{
 		clearSearchLayout();
 		clearViewParent(hintsList);
 		searchLayout.addView(hintsList);
-		activeViewSateChanged(ActiveViewState.HINTS);
-		Log.d("ACTIVE_STATE_PUT_HINTS", activeViewState.toString());
+		activeViewState = ActiveViewState.HINTS;
 	}
 	
 	private void showResultsView()
@@ -184,8 +175,7 @@ public class SearchFragment extends Fragment{
 			clearSearchLayout();
 			searchLayout.addView(resultWebView);
 		}
-		activeViewSateChanged(ActiveViewState.WEB);
-		Log.d("ACTIVE_STATE_PUT_WEB", activeViewState.toString());
+		activeViewState = ActiveViewState.WEB;
 		hideKeyboard();
 	}
 	
