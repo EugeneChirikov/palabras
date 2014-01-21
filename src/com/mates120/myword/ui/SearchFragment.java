@@ -8,11 +8,14 @@ import com.mates120.myword.R;
 import com.mates120.myword.Word;
 
 import android.support.v4.app.Fragment;
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,7 +52,6 @@ public class SearchFragment extends Fragment {
 	private ListView hintsList;
 	private LinearLayout searchLayout;
 	private LinearLayout webHorizLayout;
-	private boolean hintsShown = true;
 	private HtmlPageComposer htmlPageComposer;
 	
 	private String text;
@@ -60,6 +62,11 @@ public class SearchFragment extends Fragment {
 	private String webViewContent;
 	private static final String webViewContentKey = "web_view_content";
 	
+	private ActiveViewState activeViewState;
+	private static final String activeStateKey = "ACTIVE_VIEW";
+	
+	private OnActiveViewListener mListener;	
+		
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -98,10 +105,42 @@ public class SearchFragment extends Fragment {
 			}
 		});
 		editText.addTextChangedListener(new EditTextWatcher());
+		activeViewSateChanged(ActiveViewState.NONE);
 		restoreWebViewState(savedInstanceState);
 		restoreHintsState(savedInstanceState);
-		tryIfLandscape();
+		restoreActiveViewState(savedInstanceState);
+		fillLayout();
 		return view;
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState)
+	{
+		Log.d("ACTIVE_STATE_SAVE", activeViewState.toString());
+		outState.putString(activeStateKey, activeViewState.name());
+		outState.putString(webViewContentKey, webViewContent);
+		outState.putString(editContentKey, editText.getText().toString());
+		outState.putStringArrayList(hintsContentKey, (ArrayList<String>) hints);
+	};
+	
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		try{
+			mListener = (OnActiveViewListener) activity;
+		}catch(ClassCastException e){
+			throw new ClassCastException(activity.toString() 
+					+ " must implement OnActiveViewListener");
+		}
+	}
+
+	public interface OnActiveViewListener {
+        public void onActiveViewChanged(ActiveViewState activeViewState);
+    }
+	
+	private void activeViewSateChanged(ActiveViewState newState){
+		activeViewState = newState;
+		mListener.onActiveViewChanged(newState);
 	}
 	
 	class SearchLineFocusChangeListener implements OnFocusChangeListener{
@@ -113,14 +152,6 @@ public class SearchFragment extends Fragment {
 //				showHintsList();
 		}
 	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState)
-	{
-		outState.putString(webViewContentKey, webViewContent);
-		outState.putString(editContentKey, editText.getText().toString());
-		outState.putStringArrayList(hintsContentKey, (ArrayList<String>) hints);
-	};
 
 	private void restoreWebViewState(Bundle savedInstanceState)
 	{
@@ -144,28 +175,34 @@ public class SearchFragment extends Fragment {
 		updateHintsAdapterFromHintsList();
 	}
 	
+	private void restoreActiveViewState(Bundle savedInstanceState){
+		if (savedInstanceState == null)
+			return;
+		activeViewSateChanged(ActiveViewState.valueOf(
+				savedInstanceState.getString(activeStateKey)));
+		Log.d("ACTIVE_STATE_RESTORED", activeViewState.toString());
+	}
+	
 	private void showHintsList()
 	{
-		searchLayout.removeView(resultWebView);
-		if(hintsList.getParent() == null)
-			searchLayout.addView(hintsList);
-		hintsShown = true;
+		clearSearchLayout();
+		clearViewParent(hintsList);
+		searchLayout.addView(hintsList);
+		activeViewSateChanged(ActiveViewState.HINTS);
+		Log.d("ACTIVE_STATE_PUT_HINTS", activeViewState.toString());
 	}
 	
 	private void showResultsView()
 	{
-		if (hintsShown == false)
-			return;
-		if(resultWebView.getParent() != null)
-			((LinearLayout)resultWebView.getParent()).removeView(resultWebView);
-		if(webHorizLayout != null){
+		clearViewParent(resultWebView);
+		if(isInLandscape()){
 			webHorizLayout.addView(resultWebView);
-			hintsShown = true;
 		}else{
-			searchLayout.removeView(hintsList);
+			clearSearchLayout();
 			searchLayout.addView(resultWebView);
-			hintsShown = false;
 		}
+		activeViewSateChanged(ActiveViewState.WEB);
+		Log.d("ACTIVE_STATE_PUT_WEB", activeViewState.toString());
 		hideKeyboard();
 	}
 	
@@ -235,7 +272,6 @@ public class SearchFragment extends Fragment {
 			{
 				if (text.equals(editContent)) //hints were updated from bundle
 				{
-//					editContent = null;
 					return;
 				}
 				GetHintsAsyncTask hintsAsTask = new GetHintsAsyncTask();
@@ -283,52 +319,42 @@ public class SearchFragment extends Fragment {
 		}
 	}
 	
-	private void tryIfLandscape(){
+	private void fillLayout(){
 		if (!isInLandscape()){
-			if(!hintsShown)
-				showResultsView();
-			else
+			if(activeViewState == ActiveViewState.HINTS)
 				showHintsList();
+			if(activeViewState == ActiveViewState.WEB)
+				showResultsView();
 			return;
 		}
-		if(hintsList.getParent() != null)
-			((LinearLayout)hintsList.getParent()).removeView(hintsList);
-		if(resultWebView.getParent() != null)
-			((LinearLayout)resultWebView.getParent()).removeView(resultWebView);
+		clearViewParent(hintsList);
+		clearViewParent(resultWebView);
 		if(hintsList != null)
 			searchLayout.addView(hintsList);
 		if(resultWebView != null)
 			webHorizLayout.addView(resultWebView);
-		hintsShown = true;
-	}
-
-	public boolean shouldCloseOnBack() {
-		if (hintsShown)
-			return false;
-		showHintsList();
-		return true;
 	}
 	
 	private boolean isInLandscape(){
-		return webHorizLayout != null;
+		DisplayMetrics outMetrics = new DisplayMetrics();
+		getActivity().getWindowManager().getDefaultDisplay().getMetrics(outMetrics);
+		int width = outMetrics.widthPixels;
+		int height = outMetrics.heightPixels;
+		return (width > height);
 	}
 	
-	private void setHintsLastView(){
-		resultWebView.setTag(false);
-		hintsList.setTag(true);
+	private void clearViewParent(View view){
+		if(view.getParent() != null)
+			((LinearLayout)view.getParent()).removeView(view);
 	}
 	
-	private void setWebLastView(){
-		hintsList.setTag(false);
-		resultWebView.setTag(true);
+	private void clearSearchLayout(){
+		if (searchLayout.getChildCount() > 1){
+			searchLayout.removeViewAt(1);
+		}
 	}
 	
-	private View lastShown(){
-		View lastShown = null;
-		if((Boolean) hintsList.getTag())
-			lastShown = hintsList;
-		if((Boolean) resultWebView.getTag())
-			lastShown = resultWebView;
-		return lastShown;
+	public void showLastHints(){
+		showHintsList();
 	}
 }

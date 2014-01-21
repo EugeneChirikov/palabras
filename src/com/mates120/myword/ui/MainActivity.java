@@ -8,22 +8,25 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.view.Menu;
+import android.util.DisplayMetrics;
 import android.view.View;
 
-public class MainActivity extends FragmentActivity implements ActionBar.TabListener{
+public class MainActivity extends FragmentActivity 
+		implements ActionBar.TabListener, SearchFragment.OnActiveViewListener{
 	
 	private SectionsPagerAdapter mSectionsPagerAdapter;
 	private ViewPager mViewPager;
 	public boolean dictsRefreshNeeded = false;
-
+	
+	private ActiveViewState searchActiveView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        mSectionsPagerAdapter = new SectionsPagerAdapter(
+        		getSupportFragmentManager());
 
         // Set up the action bar.
         final ActionBar actionBar = getActionBar();
@@ -33,8 +36,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
         // Specify that we will be displaying tabs in the action bar.
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        // Set up the ViewPager, attaching the adapter and setting up a listener for when the
-        // user swipes between sections.
+        // Set up the ViewPager, attaching the adapter and setting up a 
+        // listener for when the user swipes between sections.
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
@@ -78,11 +81,8 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
     }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-//		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+	public interface OnBackListener{
+		public void onBackPressed();
 	}
 	
 	public void addDictionary(View view)
@@ -92,11 +92,24 @@ public class MainActivity extends FragmentActivity implements ActionBar.TabListe
 
 	@Override
 	public void onBackPressed() {
-		final SearchFragment searchFragment = (SearchFragment)
-				mSectionsPagerAdapter.getItem(0);
-		if (!searchFragment.shouldCloseOnBack())
+		if (isInLandscape() || searchActiveView != ActiveViewState.WEB)
 			super.onBackPressed();
+		else{
+			((SearchFragment)
+					getSupportFragmentManager().findFragmentByTag(searchTag))
+					.showLastHints();
+		}
 	}
-	
-	
+	private boolean isInLandscape(){
+		DisplayMetrics outMetrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(outMetrics);
+		int width = outMetrics.widthPixels;
+		int height = outMetrics.heightPixels;
+		return (width > height);
+	}
+
+	@Override
+	public void onActiveViewChanged(ActiveViewState activeViewState) {
+		searchActiveView = activeViewState;
+	}	
 }
