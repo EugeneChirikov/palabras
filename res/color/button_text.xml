@@ -4,5 +4,5 @@
            android:color="@color/violet_light" /> <!-- pressed -->
      <item android:state_focused="true"
            android:color="@color/violet_light" /> <!-- focused -->
-     <item android:color="@color/violet" /> <!-- default -->
+     <item android:color="@color/blue" /> <!-- default -->
 </selector>
