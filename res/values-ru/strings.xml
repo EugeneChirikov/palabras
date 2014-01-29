@@ -17,5 +17,8 @@
     <string name="style_upper">СТИЛЬ</string>
     <string name="word_text"></string>
     <string name="value_text">Value text</string>
-
+    <string name="selected"> ВЫБРАНО</string>
+    <string name="select_all">ВЫБРАТЬ ВСЕ</string>
+    <string name="status_on">ВКЛ </string>
+    <string name="status_off">ВЫКЛ</string>
 </resources>

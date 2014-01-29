@@ -1,6 +1,7 @@
 package com.mates120.myword.ui;
 
 import com.mates120.myword.AvailableDictionaries;
+import com.mates120.myword.R;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -18,7 +19,7 @@ public class RefreshDictionariesListTask
 		uiThreadHandler = new Handler();
 		progressDialog = new ProgressDialog(myContext);
 		progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-		progressDialog.setMessage("Checking dictionaries");
+		progressDialog.setMessage(context.getString(R.string.refresh_dictionaries));
 		progressDialog.setCancelable(false);
 		progressDialog.setCanceledOnTouchOutside(false);
 		progressDialog.show();

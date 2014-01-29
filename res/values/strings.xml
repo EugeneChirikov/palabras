@@ -5,7 +5,7 @@
     <string name="action_settings">Settings</string>
     <string name="checkBt">Check</string>
     <string name="enter_word_for_search">Enter word for search</string>
-    <string name="no_such_word_in_db">No such word in the dictionary</string>
+    <string name="no_such_word_in_db">No such word in any of active dictionaries</string>
     <string name="title_activity_activity_search_setting">ActivitySearchSetting</string>
     <string name="title_activity_activity_main_tabbed">ActivityMainTabbed</string>
     <string name="search">SEARCH</string>
@@ -17,5 +17,10 @@
     <string name="style_upper">STYLE</string>
     <string name="word_text"></string>
     <string name="value_text">Value text</string>
+    <string name="refresh_dictionaries">Checking dictionaries</string>
+    <string name="selected"> SELECTED</string>
+    <string name="select_all">SELECT ALL</string>
+    <string name="status_on">ON </string>
+    <string name="status_off">OFF</string>
 
 </resources>

@@ -7,18 +7,54 @@ import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper
 {
+	public static enum DictColumns
+	{
+		ID(0, "_id"),
+		NAME(1, "name"),		
+		APP(2, "app"),
+		ISACTIVE(3, "isactive"),
+		TYPE(4, "type");
+		
+		private int position;
+		private String name;
+		
+		DictColumns(int position, String name)
+		{
+			this.position = position;
+			this.name = name;
+		}
+
+		@Override
+		public String toString()
+		{
+			return name;
+		}
+		
+		public int position()
+		{
+			return position;
+		}
+		
+		public static String[] names()
+		{
+		    DictColumns[] columns = values();
+		    String[] names = new String[columns.length];
+		    for (int i = 0; i < columns.length; i++)
+		        names[i] = columns[i].toString();
+		    return names;
+		}
+		
+	}
+		
 	public static final String TABLE_DICTS = "known_dicts_table";	
-	public static final String COL_DICTS_ID = "_id";
-	public static final String COL_DICTS_NAME = "name";
-	public static final String COL_DICTS_APP = "app";
-	public static final String COL_DICTS_ISACTIVE = "isactive";
 
 	private static final String DATABASE_CREATE_DICTS = "create table "
 		+ TABLE_DICTS + "("
-		+ COL_DICTS_ID + " integer primary key autoincrement, "
-		+ COL_DICTS_NAME + " text not null unique, "
-		+ COL_DICTS_APP	+ " text not null, "
-		+ COL_DICTS_ISACTIVE + " integer not null);";  //default value should be 1
+		+ DictColumns.ID + " integer primary key autoincrement, "
+		+ DictColumns.NAME + " text not null, "
+		+ DictColumns.APP	+ " text not null unique, "
+		+ DictColumns.ISACTIVE + " integer not null, "
+		+ DictColumns.TYPE + " text not null);";
 
 	public static final String TABLE_LEARNING = "learning_table";
 	public static final String COL_LEARNING_ID = "_id";
