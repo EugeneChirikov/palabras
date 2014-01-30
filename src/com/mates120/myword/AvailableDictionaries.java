@@ -5,34 +5,36 @@ import java.util.List;
 
 import com.mates120.myword.ui.SettingsFragment;
 
-import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 
 public class AvailableDictionaries
 {
 	private List<Dictionary> knownDictionaries;
 	private KnownDictionariesDB dictsDB;
 	private PackageManager pacMan;
-	private ContentResolver contentResolver;
 	private SettingsFragment settingsFragment;
+	private Context myContext;
+
 	
 	private static final String DICTIONARY_PACKAGE = "com.mates120.dictionary.";
 	private volatile static AvailableDictionaries uniqueInstance;
 	
 	private AvailableDictionaries(Context context)
-	{
+	{		
 		knownDictionaries = new ArrayList<Dictionary>();
+		DictionarySpec.setPackage(DICTIONARY_PACKAGE);
 		dictsDB = new KnownDictionariesDB(context);
 		pacMan = context.getPackageManager();
-		contentResolver = context.getContentResolver();
+		myContext = context;
 	}
 	
 	public synchronized void subscribeSettingsFragment(SettingsFragment sf)
 	{
 		settingsFragment = sf;
-		System.out.println("We subscribe");
 		notifyAll();
 	}
 	
@@ -56,12 +58,11 @@ public class AvailableDictionaries
 	
 	public synchronized void refreshList()
 	{
-		obtainKnownDictionariesList();
-		List<String> allDicts = obtainInstalledDictionariesList();
-		boolean dictsInserted = insertNewlyInstalledDictionaries(allDicts);
-		boolean dictsDeleted = cleanupAlreadyDeletedDictionaries(allDicts);
-/*		if (!dictsInserted && !dictsDeleted)  consider first use/onCreate in activity
-			return;*/
+		List<DictionarySpec> knownDicts = obtainKnownDictionariesList();
+		List<DictionarySpec> installedDicts = obtainInstalledDictionariesList();		
+		updateDictionariesDB(knownDicts, installedDicts);
+		knownDictionaries = obtainLatestDictionariesList();
+
 		while (settingsFragment == null)
 		{
 			try {
@@ -70,81 +71,80 @@ public class AvailableDictionaries
 		}
 		settingsFragment.onDictionariesRefresh();
 	}
-	
-	private void obtainKnownDictionariesList()
+
+	private List<Dictionary> obtainLatestDictionariesList()
 	{
 		dictsDB.open();
-		knownDictionaries = dictsDB.getDicts();
+		dictsDB.updateData(); // in case name or type changed
+		List<Dictionary> dicts = dictsDB.getDicts();
 		dictsDB.close();
+		return dicts;
 	}
 	
-	private List<String> obtainInstalledDictionariesList()
+	private List<DictionarySpec> obtainKnownDictionariesList()
+	{
+		dictsDB.open();
+		List<DictionarySpec> dicts = dictsDB.getDictSpecs();
+		dictsDB.close();
+		return dicts;
+	}
+
+	private List<DictionarySpec> obtainInstalledDictionariesList()
 	{
 		List<ApplicationInfo> packages = pacMan.getInstalledApplications(PackageManager.GET_META_DATA);
-		List<String> dictsInSystem = new ArrayList<String>();
+		List<DictionarySpec> dictsInSystem = new ArrayList<DictionarySpec>();
+		String appName;
 		for (ApplicationInfo packageInfo : packages)
+		{
 			if(packageInfo.packageName.startsWith(DICTIONARY_PACKAGE))
-				dictsInSystem.add(packageInfo.packageName.substring(24));
+			{
+				appName = packageInfo.packageName.substring(DICTIONARY_PACKAGE.length());
+				dictsInSystem.add(new DictionarySpec(appName));
+			}
+		}
 		return dictsInSystem;
 	}
-	
-	private boolean insertNewlyInstalledDictionaries(List<String> installedDicts)
-	{
-		boolean wereChanges = false;
-		for (String newDict : installedDicts)
-		{
-			if (isKnownDictionary(newDict))
-				continue;
-			Dictionary currentDictionary = new Dictionary(newDict, contentResolver);
-			dictsDB.open();
-			dictsDB.insertDictionary(currentDictionary);
-			dictsDB.close();
-			knownDictionaries.add(currentDictionary);
-			wereChanges = true;
-		}
-		return wereChanges;
-	}
-	
-	private boolean isKnownDictionary(String dict)
-	{		
-		for (Dictionary knownDict : knownDictionaries)
-			if (dict.equals(knownDict.getApp()))
-				return true;
-		return false;
-	}
-			
-	private boolean cleanupAlreadyDeletedDictionaries(List<String> installedDicts)
-	{
-		boolean wereChanges = false;
-		for (Dictionary knownDict : knownDictionaries)
-		{
-			if (isKnownInTheSystem(knownDict.getApp(), installedDicts))
-				continue;
-			dictsDB.open();
-			dictsDB.deleteDictByAppName(knownDict.getApp());
-			dictsDB.close();
-			knownDictionaries.remove(knownDict);
-			wereChanges = true;
-		}
-		return wereChanges;
-	}
-	
-	private boolean isKnownInTheSystem(String knownDict, List<String> allDicts)
-	{		
-		return allDicts.contains(knownDict);
-	}
-	
-	public void setDictionaryActive(String dictName, boolean isActive)
+
+	private void updateDictionariesDB(List<DictionarySpec> knownDicts, List<DictionarySpec> foundDicts)
 	{
 		dictsDB.open();
-		dictsDB.setActiveDict(dictName, isActive);
-		dictsDB.close();
-		for(int i = 0; i < knownDictionaries.size(); i++)
-			if (knownDictionaries.get(i).getName().equals(dictName))
+		for (DictionarySpec knownDict : knownDicts)
+		{
+			if (foundDicts.contains(knownDict)) //такой словарь известен
 			{
-				knownDictionaries.get(i).setActive(isActive);
-				break;
+				System.out.println(knownDict);
+				if (!foundDicts.remove(knownDict))
+					throw new RuntimeException("False logic");
+				continue;
 			}
+			// такой словарь уже удален, убрать из базы
+			System.out.println("We remove stale db row");
+			dictsDB.deleteDict(knownDict);
+		}
+		for (DictionarySpec newDictSpec: foundDicts)
+		{
+			System.out.println("We add new");
+			dictsDB.addDictionary(newDictSpec);
+		}
+		dictsDB.close();
+	}
+
+	public void setDictionaryActive(Dictionary dict, boolean isActive)
+	{
+		dictsDB.open();
+		dictsDB.setActiveDict(dict.getSpec(), isActive);
+		dictsDB.close();
+		dict.setActive(isActive);
+	}
+	
+	public void deleteDictionary(Dictionary dict)
+	{
+		Intent intent = new Intent(Intent.ACTION_DELETE, Uri.fromParts("package", dict.getSpec().toString(), null));
+		myContext.startActivity(intent);
+		dictsDB.open();
+		System.out.println("DELETE");
+		dictsDB.deleteDict(dict.getSpec());
+		dictsDB.close();
 	}
 	
 	public List<Word> getWord(String wordSource)
@@ -155,7 +155,7 @@ public class AvailableDictionaries
 		{
 			if(!d.isActive())
 				continue;
-			foundWord = d.getWord(wordSource, contentResolver);
+			foundWord = d.getWord(wordSource);
 			if (foundWord != null)
 				foundWords.add(foundWord);
 		}
@@ -170,7 +170,7 @@ public class AvailableDictionaries
 		{
 			if(!d.isActive())
 				continue;
-			dictHints = d.getHints(startWith, contentResolver);
+			dictHints = d.getHints(startWith);
 			totalHints.addAll(dictHints); // take first 20 in alphabetic order and exclude duplicates later
 			                              // should try to use TreeSet for this
 		}

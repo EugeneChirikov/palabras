@@ -4,119 +4,62 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentResolver;
-import android.database.Cursor;
-import android.net.Uri;
 
-public class Dictionary
+abstract public class Dictionary
 {
-	private final String PACKAGE = "com.mates120.dictionary.";
-	private long id;
-	private String name;
-	private String app;
+	protected String name;
 	private boolean isActive;
+	protected List<String> hints;
+	protected DictionarySpec spec;
+	protected ContentResolver cr;
+	private long id;
 	
-	private final String[] wordsProjection = {"_id", "source", "value"};
-	private final String[] hintsProjection = {"source"};
-	private final String wordsSelection =  "source = ?";
-	private final String hintsSelection =  "source like ?";
-	
-	private List<String> hints;
-	
-	public Dictionary()
+	public Dictionary(DictionarySpec spec, long id, String name, boolean active, ContentResolver cr)
 	{
+		this.spec = spec;
+		this.cr = cr;
 		hints = new ArrayList<String>();
-	}
-	
-	public Dictionary(String dictApp, ContentResolver cr)
-	{
-		app = dictApp;
-		Uri uri = getProviderUri("words/create");
-		Cursor cursor = cr.query(uri, null, null, null, null);
-		cursor.moveToFirst();
-		name = cursor.getString(0);
-		cursor.close();
-		isActive = true;
-		hints = new ArrayList<String>();
-	}
-	
-	public long getId(){
-		return id;
-	}
-	
-	public void setId(long id){
 		this.id = id;
-	}
-	
-	public String getName(){
-		return name;
-	}
-	
-	public void setName(String name){
+		this.isActive = active;
 		this.name = name;
 	}
 	
-	public String getApp(){
-		return app;
+	abstract public Word getWord(String wordSource);
+	abstract public List<String> getHints(String startCharacters);
+
+	public long getId()
+	{
+		return id;
 	}
 	
-	public void setApp(String app){
-		this.app = app;
+	public String getName()
+	{
+		return name;
 	}
 	
-	public boolean isActive(){
+	public DictionarySpec getSpec()
+	{
+		return spec;
+	}
+	
+	public String getApp()
+	{
+		return spec.getAppName();
+	}
+	
+	public boolean isActive()
+	{
 		return isActive;
 	}
 	
-	public void setActive(boolean searchIn){
-		this.isActive = searchIn;
+	public void setActive(boolean active)
+	{
+		this.isActive = active;
 	}
 	
-	public Word getWord(String wordSource, ContentResolver cr)
+	@Override
+	public String toString()
 	{
-		Word foundWord = null;
-		Uri uri = getProviderUri("words");
-		String[] selectionArgs = new String[]{wordSource};
-		Cursor cursor = cr.query(uri, wordsProjection, wordsSelection, selectionArgs, null);
-		cursor.moveToFirst();
-		foundWord = cursorToWord(cursor);
-		cursor.close();
-		return foundWord;
-	}
-	
-	public List<String> getHints(String startCharacters, ContentResolver cr)
-	{
-		hints.clear();
-		String hint;
-		Uri uri = getProviderUri("words/hints");
-		String[] selectionArgs = {startCharacters + "%"};
-		Cursor cursor = cr.query(uri, hintsProjection, hintsSelection, selectionArgs, "source ASC");
-		cursor.moveToFirst();
-		while(cursor != null && cursor.getCount() > 0)
-		{
-			hint = cursor.getString(0);
-			hints.add(hint);
-			if(!cursor.moveToNext())
-				break;
-		}
-		cursor.close();
-		return hints;
-	}
-	
-	/*
-	 * uri_opt can be "words" for search words in dictionaries or
-	 * "words/create" for create dictionary via contentProvider or
-	 * "words/hints" for get hints from start characters
-	 */
-	private Uri getProviderUri(String uri_opt)
-	{
-		return Uri.parse("content://" + PACKAGE + app + ".WordsProvider/" + uri_opt);
-	}
-	
-	private Word cursorToWord(Cursor cursor)
-	{
-		Word sWord = null;
-		if(cursor != null && cursor.getCount() > 0)	
-			sWord = new Word(cursor.getString(1),cursor.getString(2), name);
-		return sWord;
+		return name;
 	}
 }

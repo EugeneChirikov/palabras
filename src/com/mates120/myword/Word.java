@@ -1,6 +1,7 @@
 package com.mates120.myword;
 
-public class Word {
+public class Word
+{
 	private String source;
 	private String value;
 	private String dictionaryName;
