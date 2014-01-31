@@ -3,7 +3,6 @@ package com.mates120.myword;
 import java.util.List;
 
 import android.content.ContentResolver;
-import android.database.Cursor;
 
 public class StardictDictionary extends Dictionary
 {
@@ -24,13 +23,5 @@ public class StardictDictionary extends Dictionary
 		hints.clear();
 	
 		return hints;
-	}
-
-	private Word cursorToWord(Cursor cursor)
-	{
-		Word sWord = null;
-		if(cursor != null && cursor.getCount() > 0)	
-			sWord = new Word(cursor.getString(1),cursor.getString(2), name);
-		return sWord;
 	}
 }

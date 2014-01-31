@@ -2,7 +2,6 @@ package com.mates120.myword.ui;
 
 import com.mates120.myword.R;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
@@ -23,7 +22,7 @@ public class SelectionSpinner
 		myContext = (Context)activity;
 		LayoutInflater inflater = (LayoutInflater)myContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		selectionSpinner = (Spinner)inflater.inflate(R.layout.selection_spinner, null);
-		spinnerContent = new ArrayAdapter<CharSequence>(myContext, android.R.layout.simple_spinner_item);
+		spinnerContent = new ArrayAdapter<CharSequence>(myContext, R.layout.spinner_item);
 		spinnerContent.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		spinnerContent.add(itemsSelectedText);
 		spinnerContent.add(myContext.getString(R.string.select_all));
