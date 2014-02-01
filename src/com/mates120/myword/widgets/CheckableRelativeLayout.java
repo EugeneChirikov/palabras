@@ -48,7 +48,7 @@ public class CheckableRelativeLayout extends RelativeLayout implements Checkable
 	public void updateBackground()
 	{
 		setActivated(isChecked);
-	/*	if (isChecked)
+/*		if (isChecked)
 			setBackgroundColor(0x33B5E500);
 		else
 			setBackgroundColor(Color.TRANSPARENT);*/
