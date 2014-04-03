@@ -1,7 +1,6 @@
 package com.mates120.myword.widgets;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.AttributeSet;
 import android.widget.Checkable;
 import android.widget.RelativeLayout;
